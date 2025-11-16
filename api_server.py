@@ -18,6 +18,7 @@ from datetime import datetime
 
 from word_transcription import WordTranscriber
 from sliding_window_matcher import SlidingWindowMatcher, format_time
+from speaker_verification import SpeakerVerifier
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -36,14 +37,16 @@ app.add_middleware(
 )
 
 # Configuration
-THRESHOLD = 0.80  # 80% similarity threshold
+TEXT_THRESHOLD = 0.80  # 80% text similarity threshold
+SPEAKER_THRESHOLD = 0.85  # 85% speaker similarity threshold
 VIDEO_DIRECTORY = "download"
 UPLOAD_DIRECTORY = "uploads"
 Path(UPLOAD_DIRECTORY).mkdir(exist_ok=True)
 
 # Initialize services
 transcriber = WordTranscriber()
-matcher = SlidingWindowMatcher(similarity_threshold=THRESHOLD)
+matcher = SlidingWindowMatcher(similarity_threshold=TEXT_THRESHOLD)
+speaker_verifier = SpeakerVerifier()  # Initialize speaker verifier
 
 # In-memory storage for verification results
 verification_cache: Dict[str, Dict] = {}
@@ -54,12 +57,15 @@ class VerificationResult(BaseModel):
     """Verification result response model."""
     verification_id: str
     verified: bool
+    verification_type: str  # "full", "content_only", "not_verified"
     clip_name: str
     matches: List[Dict]
     best_match: Optional[Dict]
+    speaker_verification: Optional[Dict]
     clip_info: Dict
     timestamp: str
-    threshold: float
+    text_threshold: float
+    speaker_threshold: float
 
 
 class VideoInfo(BaseModel):
@@ -73,7 +79,8 @@ class VideoInfo(BaseModel):
 class HealthResponse(BaseModel):
     """Health check response."""
     status: str
-    threshold: float
+    text_threshold: float
+    speaker_threshold: float
     video_directory: str
     videos_available: int
 
@@ -125,7 +132,8 @@ async def health_check():
     
     return HealthResponse(
         status="healthy",
-        threshold=THRESHOLD,
+        text_threshold=TEXT_THRESHOLD,
+        speaker_threshold=SPEAKER_THRESHOLD,
         video_directory=VIDEO_DIRECTORY,
         videos_available=len(videos)
     )
@@ -178,19 +186,24 @@ async def verify_clip(
     file: UploadFile = File(...)
 ):
     """
-    Verify a video clip against all videos in the database.
+    Verify a video clip using HYBRID VERIFICATION (Content + Speaker).
+    
+    Two-stage verification process:
+    1. Content Verification: Word-level text matching to find WHAT was said
+    2. Speaker Verification: Audio embedding comparison to verify WHO said it
     
     Upload a video clip and get verification results including:
-    - Whether the clip matches any video
-    - Exact timestamp where it was found
-    - Similarity score
+    - verification_type: "full" (both match), "content_only" (possible deepfake), or "not_verified"
+    - Exact timestamp where content was found
+    - Text similarity score
+    - Speaker similarity score
     - Matched text
     
     Parameters:
     - file: Video clip file (mp4, avi, mov, etc.)
     
     Returns:
-    - Verification result with matches and best match information
+    - Hybrid verification result with content and speaker verification details
     """
     
     # Generate unique ID for this verification
@@ -242,23 +255,74 @@ async def verify_clip(
         # Step 4: Search for matches
         matches = matcher.search_all_videos(clip_transcription, video_transcriptions)
         
-        # Step 5: Prepare result
-        verified = len(matches) > 0
+        # Step 5: Speaker Verification (if content match found)
+        speaker_verification = None
+        verification_type = "not_verified"
+        content_verified = len(matches) > 0
         best_match = matches[0] if matches else None
+        
+        if content_verified and best_match:
+            # Perform speaker verification on the matched segment
+            try:
+                # Get matched timestamps
+                original_video_path = f"{VIDEO_DIRECTORY}/{best_match['video_name']}"
+                start_time = best_match['start_time']
+                end_time = best_match['end_time']
+                duration = end_time - start_time
+                verify_duration = min(10.0, duration)  # Analyze up to 10 seconds
+                
+                # Verify speaker
+                speaker_result = speaker_verifier.verify_speaker(
+                    clip_path=temp_file_path,
+                    clip_start=0,
+                    clip_duration=verify_duration,
+                    original_path=original_video_path,
+                    original_start=start_time,
+                    original_duration=verify_duration,
+                    threshold=SPEAKER_THRESHOLD
+                )
+                
+                speaker_verification = {
+                    "verified": speaker_result['verified'],
+                    "similarity": speaker_result['similarity'],
+                    "threshold": speaker_result['threshold'],
+                    "message": speaker_result['message']
+                }
+                
+                # Determine final verification type
+                if speaker_result['verified']:
+                    verification_type = "full"  # Both content and speaker match
+                else:
+                    verification_type = "content_only"  # Content matches, speaker doesn't
+                    
+            except Exception as e:
+                print(f"Warning: Speaker verification failed: {e}")
+                speaker_verification = {
+                    "verified": False,
+                    "error": str(e),
+                    "message": "Speaker verification failed"
+                }
+                verification_type = "content_only"
+        
+        # Final verification status
+        fully_verified = (verification_type == "full")
         
         result = {
             "verification_id": verification_id,
-            "verified": verified,
+            "verified": fully_verified,
+            "verification_type": verification_type,
             "clip_name": file.filename,
             "matches": matches,
             "best_match": best_match,
+            "speaker_verification": speaker_verification,
             "clip_info": {
                 "word_count": clip_transcription['word_count'],
                 "duration": clip_transcription['duration'],
                 "text": clip_transcription['full_text']
             },
             "timestamp": datetime.now().isoformat(),
-            "threshold": THRESHOLD
+            "text_threshold": TEXT_THRESHOLD,
+            "speaker_threshold": SPEAKER_THRESHOLD
         }
         
         # Cache result
@@ -526,11 +590,16 @@ if __name__ == "__main__":
     import uvicorn
     
     print("="*80)
-    print("VIDEO VERIFICATION API V2")
+    print("VIDEO VERIFICATION API V2 - HYBRID VERIFICATION")
     print("="*80)
-    print(f"\nThreshold: {THRESHOLD:.0%}")
+    print(f"\nText Threshold: {TEXT_THRESHOLD:.0%}")
+    print(f"Speaker Threshold: {SPEAKER_THRESHOLD:.0%}")
     print(f"Video directory: {VIDEO_DIRECTORY}")
     print(f"Upload directory: {UPLOAD_DIRECTORY}")
+    print("\nVerification Modes:")
+    print("  • Full: Content + Speaker match")
+    print("  • Content Only: Content matches, speaker doesn't (possible deepfake)")
+    print("  • Not Verified: Content not found")
     print("\nStarting server...")
     print("API docs: http://localhost:8000/docs")
     print("="*80 + "\n")
