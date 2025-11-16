@@ -1,4 +1,4 @@
-import { Program } from '@coral-xyz/anchor';
+import { Program, BN } from '@coral-xyz/anchor';
 import { PublicKey } from '@solana/web3.js';
 import type { Truchain } from '../anchor/idl';
 
@@ -8,7 +8,7 @@ const ADMIN_WALLET = import.meta.env.VITE_ADMIN_WALLET;
  * Fetch all Official accounts from the program
  */
 export async function getAllOfficials(program: Program<Truchain>) {
-  return await program.account.Official.all();
+  return await program.account.official.all();
 }
 
 /**
@@ -18,7 +18,7 @@ export async function getVideosForOfficial(
   program: Program<Truchain>,
   officialPubkey: PublicKey
 ) {
-  const videos = await program.account.Video.all();
+  const videos = await program.account.video.all();
   return videos.filter((v: any) => v.account.official.equals(officialPubkey));
 }
 
@@ -41,6 +41,14 @@ export async function checkIsOfficialAuthority(
   if (!walletPubkey) return null;
 
   const officials = await getAllOfficials(program);
+  console.log('[checkIsOfficialAuthority] Total officials:', officials.length);
+  console.log('[checkIsOfficialAuthority] Looking for wallet:', walletPubkey.toString());
+  officials.forEach((o: any, idx: number) => {
+    console.log(`[checkIsOfficialAuthority] Official ${idx}:`, {
+      authority: o.account.authority.toString(),
+      matches: o.account.authority.equals(walletPubkey)
+    });
+  });
   return officials.find((o: any) => o.account.authority.equals(walletPubkey)) || null;
 }
 
@@ -55,6 +63,13 @@ export async function checkIsEndorser(
   if (!walletPubkey) return [];
 
   const officials = await getAllOfficials(program);
+  console.log('[checkIsEndorser] Total officials:', officials.length);
+  console.log('[checkIsEndorser] Looking for wallet:', walletPubkey.toString());
+  officials.forEach((o: any, idx: number) => {
+    console.log(`[checkIsEndorser] Official ${idx} endorsers:`,
+      o.account.endorsers.map((e: PublicKey) => e.toString())
+    );
+  });
   return officials.filter((o: any) =>
     o.account.endorsers.some((e: PublicKey) => e.equals(walletPubkey))
   );
@@ -81,7 +96,7 @@ export async function registerOfficial(
   );
 
   return await program.methods
-    .registerOfficial(officialId, name, authority, endorsers)
+    .registerOfficial(new BN(officialId), name, authority, endorsers)
     .accountsPartial({
       official: officialPda,
       admin: program.provider.publicKey!,

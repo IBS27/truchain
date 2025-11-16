@@ -44,8 +44,11 @@ export function useRoleDetection(walletPubkey: PublicKey | null): RoleDetectionR
       setResult(prev => ({ ...prev, loading: true }));
 
       try {
+        console.log('[Role Detection] Checking role for wallet:', walletPubkey.toString());
+
         // Check admin first (cheapest check)
         if (checkIsAdmin(walletPubkey)) {
+          console.log('[Role Detection] ✓ Admin detected');
           setResult({
             role: 'admin',
             loading: false,
@@ -57,7 +60,9 @@ export function useRoleDetection(walletPubkey: PublicKey | null): RoleDetectionR
 
         // Check if official's authority
         const officialAccount = await checkIsOfficialAuthority(program, walletPubkey);
+        console.log('[Role Detection] Official check result:', officialAccount);
         if (officialAccount) {
+          console.log('[Role Detection] ✓ Official detected');
           setResult({
             role: 'official',
             loading: false,
@@ -69,7 +74,9 @@ export function useRoleDetection(walletPubkey: PublicKey | null): RoleDetectionR
 
         // Check if endorser
         const assignedOfficials = await checkIsEndorser(program, walletPubkey);
+        console.log('[Role Detection] Endorser check result:', assignedOfficials);
         if (assignedOfficials.length > 0) {
+          console.log('[Role Detection] ✓ Endorser detected');
           setResult({
             role: 'endorser',
             loading: false,
@@ -80,6 +87,7 @@ export function useRoleDetection(walletPubkey: PublicKey | null): RoleDetectionR
         }
 
         // Default to user
+        console.log('[Role Detection] → Defaulting to user role');
         setResult({
           role: 'user',
           loading: false,

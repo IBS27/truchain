@@ -13,13 +13,21 @@ export function useAnchorProgram() {
   const wallet = useWallet();
 
   const program = useMemo(() => {
-    if (!wallet.publicKey || !wallet.signTransaction || !wallet.signAllTransactions) {
+    // Check if wallet is connected with all required methods
+    if (!wallet.publicKey || !wallet.connected) {
       return null;
     }
 
+    // Create a wallet adapter that Anchor can use
+    const anchorWallet = {
+      publicKey: wallet.publicKey,
+      signTransaction: wallet.signTransaction!,
+      signAllTransactions: wallet.signAllTransactions!,
+    };
+
     const provider = new AnchorProvider(
       connection,
-      wallet as any,
+      anchorWallet as any,
       { commitment: 'confirmed' }
     );
 
@@ -27,7 +35,7 @@ export function useAnchorProgram() {
       idl as any,
       provider
     );
-  }, [connection, wallet]);
+  }, [connection, wallet, wallet.publicKey, wallet.connected]);
 
   return program;
 }
