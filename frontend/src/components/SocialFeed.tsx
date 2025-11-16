@@ -64,15 +64,17 @@ export function SocialFeed() {
 
   return (
     <div className="relative">
-      {/* Header */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Social Feed</CardTitle>
-          <CardDescription>
-            Browse and verify video clips from the community
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      {/* Header with Title and Upload Button */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">For You</h2>
+        <Button
+          onClick={() => setUploadModalOpen(true)}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md"
+          size="sm"
+        >
+          + Upload Video
+        </Button>
+      </div>
 
       {/* Loading State */}
       {loading ? (
@@ -102,23 +104,11 @@ export function SocialFeed() {
             <VideoCard
               key={video.id}
               video={video}
-              onFlagUpdate={handleFlagUpdate}
               onVerifyClick={handleVerifyClick}
               onDetailsClick={handleDetailsClick}
             />
           ))}
         </div>
-      )}
-
-      {/* Floating Action Button */}
-      {videos.length > 0 && (
-        <button
-          onClick={() => setUploadModalOpen(true)}
-          className="fixed bottom-8 right-8 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl transition-colors z-40"
-          aria-label="Upload video"
-        >
-          +
-        </button>
       )}
 
       {/* Modals */}

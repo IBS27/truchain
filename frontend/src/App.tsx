@@ -59,25 +59,27 @@ function AppContent() {
 
   return (
     <div className="pb-8">
-      {/* Role Info Banner */}
-      <Card className="mb-6">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-muted-foreground">Role:</span>
-              <Badge variant={role === 'admin' ? 'default' : role === 'official' ? 'success' : 'secondary'} className="text-sm">
-                {role || 'Unknown'}
-              </Badge>
+      {/* Role Info Banner - Only show for non-user roles */}
+      {role && role !== 'user' && (
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-muted-foreground">Role:</span>
+                <Badge variant={role === 'admin' ? 'default' : role === 'official' ? 'success' : 'secondary'} className="text-sm">
+                  {role}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-muted-foreground">Wallet:</span>
+                <code className="text-xs bg-muted px-2 py-1 rounded">
+                  {publicKey.toString().slice(0, 8)}...{publicKey.toString().slice(-8)}
+                </code>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-muted-foreground">Wallet:</span>
-              <code className="text-xs bg-muted px-2 py-1 rounded">
-                {publicKey.toString().slice(0, 8)}...{publicKey.toString().slice(-8)}
-              </code>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Main Content */}
       {role === 'admin' && <AdminPanel />}
