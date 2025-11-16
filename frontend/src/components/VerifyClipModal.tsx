@@ -195,6 +195,34 @@ export function VerifyClipModal({ video: initialVideo, onBack }: VerifyClipModal
                       <span className="text-muted-foreground">Matched Text:</span>
                       <p className="mt-1 italic">&quot;{result.best_match.matched_text}&quot;</p>
                     </div>
+                    <div className="mt-3 pt-3 border-t">
+                      <Button
+                        variant="default"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                        onClick={() => {
+                          // Extract the filename from video_path
+                          const filename = result.best_match!.video_path.split('/').pop() || result.best_match!.video_name;
+
+                          // Extract CID from filename (format: "Qm...CID..._originalname.mp4")
+                          // CIDv0 uses base58 encoding (alphanumeric except 0, O, I, l)
+                          // The CID is everything before the first underscore or the entire name if no underscore
+                          const underscoreIndex = filename.indexOf('_');
+                          const cid = underscoreIndex > 0 ? filename.substring(0, underscoreIndex) : filename.replace(/\.[^/.]+$/, '');
+
+                          // Use IPFS download endpoint if CID is found, otherwise fallback to direct file
+                          const videoUrl = cid
+                            ? `http://localhost:3001/api/ipfs/download/${cid}#t=${Math.floor(result.best_match!.start_time)}`
+                            : `http://localhost:3001/official-videos/${encodeURIComponent(filename)}#t=${Math.floor(result.best_match!.start_time)}`;
+
+                          window.open(videoUrl, '_blank');
+                        }}
+                      >
+                        View Official Source Video
+                      </Button>
+                      <p className="text-xs text-muted-foreground mt-2 text-center">
+                        Opens the full official video at the matched timestamp
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}

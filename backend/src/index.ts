@@ -19,6 +19,9 @@ app.use(express.json());
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
+// Serve official AI videos
+app.use('/official-videos', express.static(path.join(__dirname, '../ai-layer/download')));
+
 // Routes
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
