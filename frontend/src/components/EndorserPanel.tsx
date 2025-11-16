@@ -163,7 +163,7 @@ export function EndorserPanel({ assignedOfficials }: EndorserPanelProps) {
               No pending videos to vote on.
             </p>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-2">
               {pendingVideos.map((video, idx) => {
                 const cidString = new TextDecoder().decode(new Uint8Array(video.account.ipfsCid)).replace(/\0/g, '');
                 const votes = video.account.votes || [];
@@ -171,58 +171,37 @@ export function EndorserPanel({ assignedOfficials }: EndorserPanelProps) {
                 const fakeVotes = votes.length - authenticVotes;
 
                 return (
-                  <Card key={idx} className="border-2">
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <CardTitle className="text-lg">{video.officialName}</CardTitle>
-                          <CardDescription className="mt-1">
-                            Status: <Badge variant={getStatusVariant(video.account.status)} className="ml-1">
-                              {getStatusDisplay(video.account.status)}
-                            </Badge>
-                          </CardDescription>
-                        </div>
+                  <div key={idx} className="border rounded-lg p-3 bg-card hover:bg-accent/5 transition-colors">
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <span className="font-medium text-sm truncate">{video.officialName}</span>
+                        <Badge variant={getStatusVariant(video.account.status)} className="text-xs shrink-0">
+                          {getStatusDisplay(video.account.status)}
+                        </Badge>
                       </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <p className="text-sm font-medium mb-1">IPFS CID:</p>
-                        <a
-                          href={getIPFSDownloadUrl(cidString)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs font-mono text-blue-600 hover:underline break-all"
-                        >
-                          {cidString}
-                        </a>
-                      </div>
-                      <div className="flex items-center gap-4 text-sm">
-                        <span className="text-muted-foreground">Current Votes:</span>
+                      <div className="flex items-center gap-3 text-sm shrink-0">
                         <span className="text-green-600 font-medium">✓ {authenticVotes}</span>
                         <span className="text-red-600 font-medium">✗ {fakeVotes}</span>
                       </div>
-                      <div className="flex gap-2 pt-2">
-                        <Button
-                          onClick={() => handleVote(video, true)}
-                          disabled={loading}
-                          variant="default"
-                          className="flex-1"
-                        >
-                          Vote Authentic
-                        </Button>
-                        <Button
-                          onClick={() => handleVote(video, false)}
-                          disabled={loading}
-                          variant="destructive"
-                          className="flex-1"
-                        >
-                          Vote Fake
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="text-muted-foreground shrink-0">IPFS:</span>
+                      <a
+                        href={getIPFSDownloadUrl(cidString)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-mono text-blue-600 hover:underline truncate"
+                        title={cidString}
+                      >
+                        {cidString}
+                      </a>
+                    </div>
+                  </div>
                 );
               })}
+              <p className="text-xs text-muted-foreground italic pt-2 pb-1">
+                To vote on these videos, upload them using the "Verify Uploaded File" section below.
+              </p>
             </div>
           )}
         </CardContent>
