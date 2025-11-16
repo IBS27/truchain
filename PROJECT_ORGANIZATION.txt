@@ -1,0 +1,138 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                    TRUCHAIN PROJECT ORGANIZATION                          ║
+║                    Video Verification System V2                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+📁 ROOT DIRECTORY (✅ CURRENT WORKING SYSTEM)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 V2 Core Files (Word-Level Timestamps):
+  verification_v2.py           - Main CLI verification script
+  word_transcription.py        - Whisper API with word-level timestamps
+  sliding_window_matcher.py    - Text matching algorithm
+  process_videos_v2.py         - Batch video processing
+
+🌐 API Backend (FastAPI with 80% threshold):
+  api_server.py               - REST API server
+
+🔧 Shared Utilities:
+  audio_transcription.py      - Audio transcription utilities
+  text_matching.py           - Text similarity matching
+  audio_embedding.py         - Audio embeddings (for future use)
+  video_processor.py         - Database management
+  requirements.txt           - Python dependencies
+
+📚 Documentation:
+  README.md                  - Main project README
+  README_V2.md              - V2 system documentation
+  V2_QUICK_START.md         - Quick start for V2
+  V2_IMPLEMENTATION_COMPLETE.md - Implementation details
+  API_DOCUMENTATION.md      - Complete API reference
+  API_QUICK_START.md        - Quick start for API
+  API_IMPLEMENTATION_COMPLETE.md - API implementation details
+
+📂 Data Directories:
+  download/                  - Original videos for verification
+  uploads/                   - Temporary uploads (API)
+  transcription_cache/       - Cached word-level transcriptions
+  test_clips/               - Test video clips
+
+
+📦 ARCHIVED SYSTEMS (Historical Reference Only)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❌ legacy_chromaprint/ (V0)
+   Status: Failed - Low accuracy (62%)
+   Problem: Chromaprint couldn't handle different recordings
+   Files: 30+ files including audio_fingerprint.py, tests, docs
+
+❌ v1_ml_embeddings/ (V1a) 
+   Status: Failed - Detected speaker instead of content
+   Problem: Different speeches by same person = 98% match (WRONG!)
+   Files: 18 files including ML processing and comparison scripts
+
+❌ v1_hybrid/ (V1b)
+   Status: Failed - Boundary alignment issues
+   Problem: Fixed 30s segments caused false negatives
+   Files: 5 files including hybrid verification system
+
+📁 archived_databases/
+   Old database files (not used by V2):
+   - video_database.json (Chromaprint)
+   - video_database_ml.json (ML embeddings)
+   - video_database_hybrid.json (Hybrid system)
+
+🛠️ utilities/
+   Helper scripts:
+   - download_youtube.py (YouTube downloader)
+
+
+🎯 WHAT TO USE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ FOR NEW WORK - Use V2 or API:
+
+  CLI (Command Line):
+    python3.10 verification_v2.py your_clip.mp4
+
+  REST API (Server):
+    python3.10 api_server.py
+    # Visit http://localhost:8000/docs
+
+❌ DON'T USE:
+  - Anything in legacy_chromaprint/
+  - Anything in v1_ml_embeddings/
+  - Anything in v1_hybrid/
+  - Anything in archived_databases/
+
+
+📊 SYSTEM EVOLUTION TIMELINE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+V0 (Chromaprint) 
+  → Failed: 62% accuracy for different recordings
+  
+V1a (ML Embeddings/Wav2Vec2)
+  → Failed: Detected WHO is speaking, not WHAT they said
+  → All Powell speeches matched at 98%
+  
+V1b (Hybrid: Transcripts + Embeddings)
+  → Failed: Boundary alignment issues
+  → Clips split across 30s segments = false negatives
+  
+V2 (Word-Level Timestamps) ✅
+  → Success: Sub-second accuracy, no boundaries
+  → Works with any clip length
+  → Sliding window search
+  
+API (FastAPI Backend) ✅
+  → Success: REST API with 80% threshold
+  → Complete CRUD operations
+  → Interactive documentation
+
+
+🚀 QUICK START
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Set API Key:
+   export OPENAI_API_KEY='your-key-here'
+
+2. Test V2:
+   python3.10 verification_v2.py test_clip.mp4
+
+3. Or Start API:
+   python3.10 api_server.py
+   # Open http://localhost:8000/docs
+
+
+📝 MORE INFO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+V2 Documentation:  README_V2.md
+API Documentation: API_DOCUMENTATION.md
+Quick Starts:      V2_QUICK_START.md, API_QUICK_START.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Current System: V2 Word-Level Timestamps + FastAPI Backend
+Status: ✅ Production Ready
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
