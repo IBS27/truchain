@@ -1,0 +1,20 @@
+# Explicitly ignore all folders except ai-layer
+__pycache__/
+archived_databases/
+cli_tools/
+documentation/
+download/
+legacy_chromaprint/
+temp_audio/
+testing/
+transcription_cache/
+uploads/
+utilities/
+v1_hybrid/
+v1_ml_embeddings/
+
+# Keep these files/folders
+# ai-layer/ (not ignored)
+# README.md (not ignored)
+# .gitignore (not ignored)
+
