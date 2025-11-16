@@ -15,6 +15,10 @@ from pathlib import Path
 import tempfile
 import uuid
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from word_transcription import WordTranscriber
 from sliding_window_matcher import SlidingWindowMatcher, format_time

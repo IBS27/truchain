@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAnchorProgram } from '../hooks/useAnchorProgram';
 import { registerVideo, getVideosForOfficial } from '../services/solana';
-import { uploadVideo, getIPFSDownloadUrl } from '../services/api';
+import { uploadOfficialVideo, getIPFSDownloadUrl } from '../services/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -48,12 +48,18 @@ export function OfficialPanel({ officialAccount }: OfficialPanelProps) {
     setMessage(null);
 
     try {
-      // Step 1: Upload to backend (IPFS + hash)
-      setMessage({ type: 'success', text: 'Uploading to IPFS...' });
-      const { hash, cid } = await uploadVideo(file);
+      // Step 1: Upload to backend (IPFS + hash + AI registration)
+      setMessage({ type: 'success', text: 'Uploading to IPFS and registering with AI service...' });
+      const officialName = new TextDecoder().decode(new Uint8Array(officialAccount.account.name)).replace(/\0/g, '');
+      const { hash, cid, aiRegistered } = await uploadOfficialVideo(file, `${officialName} - ${file.name}`);
+
+      if (aiRegistered) {
+        setMessage({ type: 'success', text: 'Video uploaded and registered with AI. Registering on blockchain...' });
+      } else {
+        setMessage({ type: 'success', text: 'Video uploaded (AI registration failed). Registering on blockchain...' });
+      }
 
       // Step 2: Register on-chain
-      setMessage({ type: 'success', text: 'Registering on blockchain...' });
       const tx = await registerVideo(
         program,
         officialAccount.publicKey,
@@ -61,7 +67,7 @@ export function OfficialPanel({ officialAccount }: OfficialPanelProps) {
         cid
       );
 
-      setMessage({ type: 'success', text: `Video registered! Transaction: ${tx}` });
+      setMessage({ type: 'success', text: `Video registered! Transaction: ${tx}${aiRegistered ? ' | AI: ✓' : ' | AI: ✗'}` });
       setFile(null);
 
       // Reload videos
@@ -176,14 +182,22 @@ export function OfficialPanel({ officialAccount }: OfficialPanelProps) {
                   return (
                     <TableRow key={idx}>
                       <TableCell className="font-mono text-xs max-w-xs">
-                        <a
-                          href={getIPFSDownloadUrl(cidString)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline break-all"
-                        >
-                          {cidString}
-                        </a>
+                        <div className="flex items-center gap-2">
+                          <a
+                            href={getIPFSDownloadUrl(cidString)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline break-all"
+                          >
+                            {cidString}
+                          </a>
+                          <Badge variant="outline" className="text-xs opacity-70 shrink-0">
+                            On-chain
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Note: Blockchain records are permanent. Video files may be deleted.
+                        </p>
                       </TableCell>
                       <TableCell>
                         <Badge variant={getStatusVariant(status)}>

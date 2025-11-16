@@ -4,7 +4,7 @@ import { socialApi } from '../services/api';
 import { VideoCard } from './VideoCard';
 import { UploadVideoModal } from './UploadVideoModal';
 import { FlagDetailsModal } from './FlagDetailsModal';
-import { VerifyPlaceholder } from './VerifyPlaceholder';
+import { VerifyClipModal } from './VerifyClipModal';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 
@@ -52,13 +52,13 @@ export function SocialFeed() {
     loadVideos();
   };
 
-  // If verifying a video, show placeholder
+  // If verifying a video, show verification modal
   if (verifyingVideoId !== null) {
     const video = videos.find(v => v.id === verifyingVideoId);
+    if (!video) return null;
     return (
-      <VerifyPlaceholder
-        videoId={verifyingVideoId}
-        videoTitle={video?.title || 'Unknown'}
+      <VerifyClipModal
+        video={video}
         onBack={handleBackFromVerify}
       />
     );

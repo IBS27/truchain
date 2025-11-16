@@ -1,7 +1,21 @@
-import type { UploadResponse, SocialVideo, FlagCounts } from './types';
+import type {
+  UploadResponse,
+  SocialVideo,
+  FlagCounts,
+  AIVerificationResult,
+  AIVideoInfo,
+  AIHealthResponse
+} from './types';
 
 // Re-export types for convenience
-export type { UploadResponse, SocialVideo, FlagCounts };
+export type {
+  UploadResponse,
+  SocialVideo,
+  FlagCounts,
+  AIVerificationResult,
+  AIVideoInfo,
+  AIHealthResponse
+};
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
@@ -81,3 +95,93 @@ export const socialApi = {
     return response.json();
   },
 };
+
+// AI Verification API
+
+export const verificationApi = {
+  /**
+   * Verify a video clip against official videos using AI
+   */
+  async verifyClip(file: File): Promise<AIVerificationResult> {
+    const formData = new FormData();
+    formData.append('clip', file);
+
+    const response = await fetch(`${BACKEND_URL}/api/verification/verify-clip`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to verify clip');
+    }
+
+    const data = await response.json();
+    return data.verification;
+  },
+
+  /**
+   * Get cached verification result by ID
+   */
+  async getVerificationResult(verificationId: string): Promise<AIVerificationResult> {
+    const response = await fetch(`${BACKEND_URL}/api/verification/result/${verificationId}`);
+
+    if (!response.ok) {
+      throw new Error('Failed to get verification result');
+    }
+
+    const data = await response.json();
+    return data.verification;
+  },
+
+  /**
+   * List all videos available in AI service
+   */
+  async listVideos(): Promise<AIVideoInfo[]> {
+    const response = await fetch(`${BACKEND_URL}/api/verification/videos`);
+
+    if (!response.ok) {
+      throw new Error('Failed to list AI videos');
+    }
+
+    const data = await response.json();
+    return data.videos;
+  },
+
+  /**
+   * Check AI service health
+   */
+  async checkHealth(): Promise<AIHealthResponse> {
+    const response = await fetch(`${BACKEND_URL}/api/verification/health`);
+
+    if (!response.ok) {
+      throw new Error('AI service unavailable');
+    }
+
+    const data = await response.json();
+    return data.aiService;
+  },
+};
+
+/**
+ * Upload official video and register with AI service
+ */
+export async function uploadOfficialVideo(file: File, title?: string): Promise<UploadResponse> {
+  const formData = new FormData();
+  formData.append('video', file);
+  if (title) {
+    formData.append('title', title);
+  }
+
+  const response = await fetch(`${BACKEND_URL}/api/ipfs/upload?registerWithAI=true`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Failed to upload video');
+  }
+
+  return await response.json();
+}

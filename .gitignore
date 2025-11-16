@@ -22,9 +22,13 @@ target/
 .anchor/
 .DS_Store
 
-# Environment files (keep .env templates)
+# Environment files (keep .env.example templates)
+.env
 .env.local
 .env.*.local
+**/.env
+!.env.example
+!**/.env.example
 
 # IDE
 .vscode/
@@ -62,15 +66,54 @@ backend/uploads/ipfs-mock/
 
 # Python / AI Layer
 __pycache__/
-archived_databases/
-cli_tools/
-documentation/
-download/
-legacy_chromaprint/
-temp_audio/
-testing/
-transcription_cache/
-uploads/
-utilities/
-v1_hybrid/
-v1_ml_embeddings/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# AI Layer specific directories
+ai-layer/venv/
+ai-layer/download/
+ai-layer/transcription_cache/
+ai-layer/uploads/
+ai-layer/temp_audio/
+ai-layer/__pycache__/
+
+# AI Layer archived/legacy
+ai-layer/archived/
+ai-layer/archived_databases/
+ai-layer/cli_tools/
+ai-layer/documentation/
+ai-layer/legacy_chromaprint/
+ai-layer/testing/
+ai-layer/utilities/
+ai-layer/v1_hybrid/
+ai-layer/v1_ml_embeddings/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# pyenv
+.python-version
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json

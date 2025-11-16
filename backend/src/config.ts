@@ -8,5 +8,8 @@ export const config = {
     port: parseInt(process.env.IPFS_PORT || '5001'),
     protocol: process.env.IPFS_PROTOCOL || 'https',
   },
+  aiService: {
+    url: process.env.AI_SERVICE_URL || 'http://localhost:8000',
+  },
   maxFileSize: parseInt(process.env.MAX_FILE_SIZE || '524288000'), // 500MB
 };

@@ -104,3 +104,41 @@ export async function downloadFromIPFS(cid: string): Promise<Buffer> {
     throw new Error('Failed to download from IPFS: Unknown error');
   }
 }
+
+/**
+ * Delete file from IPFS (Mock implementation for hackathon)
+ * Removes file from local mock storage
+ *
+ * NOTE: This is a mock implementation for development/demo.
+ * In real IPFS, you would "unpin" the content, not delete it.
+ * Real IPFS content may still exist on other nodes.
+ *
+ * @param cid - Content Identifier of file to delete
+ * @throws Error if CID is invalid or deletion fails
+ */
+export async function deleteFromIPFS(cid: string): Promise<void> {
+  // Input validation
+  if (!cid || typeof cid !== 'string' || cid.trim() === '') {
+    throw new Error('Invalid CID: must be a non-empty string');
+  }
+
+  try {
+    initMockStorage();
+
+    const storagePath = path.join(MOCK_IPFS_STORAGE, cid);
+
+    // Check if file exists
+    if (!fs.existsSync(storagePath)) {
+      throw new Error(`File not found for CID: ${cid}`);
+    }
+
+    // Delete file
+    await fs.promises.unlink(storagePath);
+    console.log(`[MOCK IPFS] Deleted file with CID: ${cid}`);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Failed to delete from IPFS: ${error.message}`);
+    }
+    throw new Error('Failed to delete from IPFS: Unknown error');
+  }
+}
