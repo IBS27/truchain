@@ -5,6 +5,27 @@ export interface UploadResponse {
   cid: string;
 }
 
+export interface SocialVideo {
+  id: number;
+  title: string;
+  description: string | null;
+  file_path: string;
+  file_url: string;
+  uploaded_at: string;
+  verified_count: number;
+  misleading_count: number;
+  unverified_count: number;
+  fake_count: number;
+  dominant_tag: 'verified' | 'misleading' | 'unverified' | 'fake';
+}
+
+export interface FlagCounts {
+  verified: number;
+  misleading: number;
+  unverified: number;
+  fake: number;
+}
+
 /**
  * Upload video file to backend
  * Returns hash and IPFS CID
@@ -32,3 +53,45 @@ export async function uploadVideo(file: File): Promise<UploadResponse> {
 export function getIPFSDownloadUrl(cid: string): string {
   return `${BACKEND_URL}/api/ipfs/download/${cid}`;
 }
+
+// Social Video API
+
+export const socialApi = {
+  async getAllVideos(): Promise<SocialVideo[]> {
+    const response = await fetch(`${BACKEND_URL}/api/social/videos`);
+    if (!response.ok) throw new Error('Failed to fetch videos');
+    return response.json();
+  },
+
+  async uploadVideo(file: File, title: string, description?: string): Promise<SocialVideo> {
+    const formData = new FormData();
+    formData.append('video', file);
+    formData.append('title', title);
+    if (description) formData.append('description', description);
+
+    const response = await fetch(`${BACKEND_URL}/api/social/videos/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) throw new Error('Failed to upload video');
+    return response.json();
+  },
+
+  async flagVideo(videoId: number, flagType: 'verified' | 'misleading' | 'unverified' | 'fake'): Promise<{ video: SocialVideo; flagCounts: FlagCounts }> {
+    const response = await fetch(`${BACKEND_URL}/api/social/videos/${videoId}/flag`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ flagType }),
+    });
+
+    if (!response.ok) throw new Error('Failed to flag video');
+    return response.json();
+  },
+
+  async getFlagCounts(videoId: number): Promise<FlagCounts> {
+    const response = await fetch(`${BACKEND_URL}/api/social/videos/${videoId}/flags`);
+    if (!response.ok) throw new Error('Failed to get flag counts');
+    return response.json();
+  },
+};
