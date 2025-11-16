@@ -59,3 +59,18 @@ temp/
 # Backend uploads
 backend/uploads/
 backend/uploads/ipfs-mock/
+
+# Python / AI Layer
+__pycache__/
+archived_databases/
+cli_tools/
+documentation/
+download/
+legacy_chromaprint/
+temp_audio/
+testing/
+transcription_cache/
+uploads/
+utilities/
+v1_hybrid/
+v1_ml_embeddings/
