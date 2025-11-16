@@ -276,12 +276,12 @@ export function VerifyClipModal({ video: initialVideo, onBack }: VerifyClipModal
           {/* Voting Section */}
           <div className="border-t pt-6">
             <h4 className="font-semibold text-base mb-3">Community Feedback</h4>
-            <div className="flex gap-2 flex-wrap">
+            <div className="grid grid-cols-2 gap-2">
               <Button
                 variant="outline"
                 onClick={() => handleFlag('verified')}
                 disabled={flagging}
-                className="flex-1 min-w-[120px] text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700"
+                className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700"
                 size="sm"
               >
                 <span className="mr-1">✓</span>
@@ -293,7 +293,7 @@ export function VerifyClipModal({ video: initialVideo, onBack }: VerifyClipModal
                 variant="outline"
                 onClick={() => handleFlag('misleading')}
                 disabled={flagging}
-                className="flex-1 min-w-[120px] text-orange-600 border-orange-600 hover:bg-orange-50 hover:text-orange-700"
+                className="text-orange-600 border-orange-600 hover:bg-orange-50 hover:text-orange-700"
                 size="sm"
               >
                 <span className="mr-1">⚠</span>
@@ -305,7 +305,7 @@ export function VerifyClipModal({ video: initialVideo, onBack }: VerifyClipModal
                 variant="outline"
                 onClick={() => handleFlag('unverified')}
                 disabled={flagging}
-                className="flex-1 min-w-[120px] text-gray-600 border-gray-600 hover:bg-gray-50 hover:text-gray-700"
+                className="text-gray-600 border-gray-600 hover:bg-gray-50 hover:text-gray-700"
                 size="sm"
               >
                 <span className="mr-1">?</span>
@@ -317,7 +317,7 @@ export function VerifyClipModal({ video: initialVideo, onBack }: VerifyClipModal
                 variant="outline"
                 onClick={() => handleFlag('fake')}
                 disabled={flagging}
-                className="flex-1 min-w-[120px] text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
+                className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
                 size="sm"
               >
                 <span className="mr-1">✗</span>
