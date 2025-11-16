@@ -3,3 +3,10 @@ dist/
 .env
 uploads/
 *.log
+
+# Database files
+data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
