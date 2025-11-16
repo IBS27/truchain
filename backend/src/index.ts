@@ -3,7 +3,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import ipfsRoutes from './routes/ipfs';
+import socialRoutes from './routes/social';
 import { config } from './config';
+import './database/db'; // Initialize database
 
 dotenv.config();
 
@@ -22,6 +24,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/ipfs', ipfsRoutes);
+app.use('/api/social', socialRoutes);
 
 app.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);
