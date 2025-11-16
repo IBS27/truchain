@@ -1,4 +1,5 @@
 # Explicitly ignore all folders except ai-layer
+.DS_Store
 __pycache__/
 archived_databases/
 cli_tools/
