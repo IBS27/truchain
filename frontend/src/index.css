@@ -1,68 +1,204 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import "tailwindcss";
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+@theme {
+  --color-background: 0 0% 100%;
+  --color-foreground: 222.2 84% 4.9%;
+  --color-card: 0 0% 100%;
+  --color-card-foreground: 222.2 84% 4.9%;
+  --color-popover: 0 0% 100%;
+  --color-popover-foreground: 222.2 84% 4.9%;
+  --color-primary: 221.2 83.2% 53.3%;
+  --color-primary-foreground: 210 40% 98%;
+  --color-secondary: 210 40% 96.1%;
+  --color-secondary-foreground: 222.2 47.4% 11.2%;
+  --color-muted: 210 40% 96.1%;
+  --color-muted-foreground: 215.4 16.3% 46.9%;
+  --color-accent: 210 40% 96.1%;
+  --color-accent-foreground: 222.2 47.4% 11.2%;
+  --color-destructive: 0 84.2% 60.2%;
+  --color-destructive-foreground: 210 40% 98%;
+  --color-border: 214.3 31.8% 91.4%;
+  --color-input: 214.3 31.8% 91.4%;
+  --color-ring: 221.2 83.2% 53.3%;
+  --radius: 0.5rem;
 }
 
 body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: hsl(var(--color-background));
+  color: hsl(var(--color-foreground));
+}
+
+/* Solana Wallet Adapter Modal Styling */
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Modal wrapper - blurred overlay */
+.wallet-adapter-modal-wrapper {
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(8px) !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 20px !important;
+  animation: fadeIn 0.15s ease-out;
+}
+
+/* The white modal card - contains everything */
+.wallet-adapter-modal {
+  background-color: white !important;
+  border-radius: 12px !important;
+  padding: 24px !important;
+  max-width: 420px !important;
+  width: 90% !important;
+  max-height: 85vh !important;
+  overflow-y: auto !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid #e2e8f0 !important;
+  animation: slideUp 0.2s ease-out;
+  position: relative !important;
+  margin: 0 auto !important;
+}
+
+/* Add custom title and description at the top of the modal */
+.wallet-adapter-modal::before {
+  content: 'Connect Wallet' !important;
+  display: block !important;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  color: #0f172a !important;
+  margin: 0 0 0.5rem 0 !important;
+  padding-right: 2.5rem !important;
+  line-height: 1.3 !important;
+}
+
+.wallet-adapter-modal-list::before {
+  content: 'Select your preferred wallet provider' !important;
+  display: block !important;
+  font-size: 0.875rem !important;
+  font-weight: 400 !important;
+  color: #64748b !important;
+  margin: 0 0 1.5rem 0 !important;
+  line-height: 1.5 !important;
+}
+
+/* Hide default titles/headings to avoid duplication */
+.wallet-adapter-modal-title {
+  display: none !important;
+}
+
+.wallet-adapter-modal h1,
+.wallet-adapter-modal h2,
+.wallet-adapter-modal h3 {
+  display: none !important;
+}
+
+.wallet-adapter-modal-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.wallet-adapter-modal-list {
+  list-style: none;
+  padding: 0;
   margin: 0;
   display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  flex-direction: column;
+  gap: 8px;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+.wallet-adapter-modal-list-item {
+  margin: 0;
 }
 
-button {
+.wallet-adapter-button {
+  width: 100%;
+  padding: 12px 16px;
   border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
+  border: 1px solid #e2e8f0;
+  background-color: white;
+  color: #0f172a;
   font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  font-size: 0.875rem;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.wallet-adapter-button:hover {
+  background-color: #f8fafc;
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.wallet-adapter-button:active {
+  transform: translateY(0);
+}
+
+.wallet-adapter-button-start-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.wallet-adapter-button-start-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.wallet-adapter-modal-button-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: #64748b;
+  transition: all 0.15s;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wallet-adapter-modal-button-close:hover {
+  color: #0f172a;
+  background-color: #f1f5f9;
+}
+
+.wallet-adapter-modal-button-close svg {
+  width: 20px;
+  height: 20px;
 }

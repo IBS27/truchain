@@ -1,7 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { PublicKey } from '@solana/web3.js';
 import { useAnchorProgram } from '../hooks/useAnchorProgram';
 import { registerOfficial, getAllOfficials } from '../services/solana';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Alert, AlertDescription } from './ui/alert';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 
 export function AdminPanel() {
   const program = useAnchorProgram();
@@ -15,7 +21,7 @@ export function AdminPanel() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [officials, setOfficials] = useState<any[]>([]);
 
-  const loadOfficials = async () => {
+  const loadOfficials = useCallback(async () => {
     if (!program) return;
     try {
       const allOfficials = await getAllOfficials(program);
@@ -23,7 +29,7 @@ export function AdminPanel() {
     } catch (error) {
       console.error('Failed to load officials:', error);
     }
-  };
+  }, [program]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,158 +82,155 @@ export function AdminPanel() {
     }
   };
 
-  // Load officials on mount
+  // Load officials when program is ready
   useEffect(() => {
     loadOfficials();
-  }, []);
+  }, [loadOfficials]);
 
   return (
-    <div style={{ padding: '20px', maxWidth: '800px' }}>
-      <h2>Admin Panel - Register Official</h2>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Admin Panel</h2>
+        <p className="text-muted-foreground">
+          Register new officials and manage endorsers
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit} style={{ marginBottom: '40px' }}>
-        <div style={{ marginBottom: '15px' }}>
-          <label>
-            Official ID:
-            <input
-              type="number"
-              value={officialId}
-              onChange={(e) => setOfficialId(e.target.value)}
-              required
-              style={{ marginLeft: '10px', padding: '5px', width: '200px' }}
-            />
-          </label>
-        </div>
+      {/* Register Official Form */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Register New Official</CardTitle>
+          <CardDescription>
+            Create a new official account with assigned endorsers
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="officialId">Official ID</Label>
+                <Input
+                  id="officialId"
+                  type="number"
+                  value={officialId}
+                  onChange={(e) => setOfficialId(e.target.value)}
+                  required
+                  placeholder="Enter unique ID"
+                />
+              </div>
 
-        <div style={{ marginBottom: '15px' }}>
-          <label>
-            Name (max 32 bytes):
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              maxLength={32}
-              required
-              style={{ marginLeft: '10px', padding: '5px', width: '300px' }}
-            />
-          </label>
-        </div>
+              <div className="space-y-2">
+                <Label htmlFor="name">Name (max 32 bytes)</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  maxLength={32}
+                  required
+                  placeholder="Official's name"
+                />
+              </div>
+            </div>
 
-        <div style={{ marginBottom: '15px' }}>
-          <label>
-            Authority Wallet:
-            <input
-              type="text"
-              value={authority}
-              onChange={(e) => setAuthority(e.target.value)}
-              required
-              placeholder="Public key"
-              style={{ marginLeft: '10px', padding: '5px', width: '400px' }}
-            />
-          </label>
-        </div>
+            <div className="space-y-2">
+              <Label htmlFor="authority">Authority Wallet</Label>
+              <Input
+                id="authority"
+                type="text"
+                value={authority}
+                onChange={(e) => setAuthority(e.target.value)}
+                required
+                placeholder="Solana public key"
+                className="font-mono text-sm"
+              />
+            </div>
 
-        <div style={{ marginBottom: '15px' }}>
-          <label>
-            Endorser 1:
-            <input
-              type="text"
-              value={endorser1}
-              onChange={(e) => setEndorser1(e.target.value)}
-              required
-              placeholder="Public key"
-              style={{ marginLeft: '10px', padding: '5px', width: '400px' }}
-            />
-          </label>
-        </div>
+            <div className="space-y-2">
+              <Label>Endorsers</Label>
+              <div className="space-y-3">
+                <Input
+                  type="text"
+                  value={endorser1}
+                  onChange={(e) => setEndorser1(e.target.value)}
+                  required
+                  placeholder="Endorser 1 public key"
+                  className="font-mono text-sm"
+                />
+                <Input
+                  type="text"
+                  value={endorser2}
+                  onChange={(e) => setEndorser2(e.target.value)}
+                  required
+                  placeholder="Endorser 2 public key"
+                  className="font-mono text-sm"
+                />
+                <Input
+                  type="text"
+                  value={endorser3}
+                  onChange={(e) => setEndorser3(e.target.value)}
+                  required
+                  placeholder="Endorser 3 public key"
+                  className="font-mono text-sm"
+                />
+              </div>
+            </div>
 
-        <div style={{ marginBottom: '15px' }}>
-          <label>
-            Endorser 2:
-            <input
-              type="text"
-              value={endorser2}
-              onChange={(e) => setEndorser2(e.target.value)}
-              required
-              placeholder="Public key"
-              style={{ marginLeft: '10px', padding: '5px', width: '400px' }}
-            />
-          </label>
-        </div>
+            <Button type="submit" disabled={loading} className="w-full md:w-auto">
+              {loading ? 'Registering...' : 'Register Official'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
-        <div style={{ marginBottom: '15px' }}>
-          <label>
-            Endorser 3:
-            <input
-              type="text"
-              value={endorser3}
-              onChange={(e) => setEndorser3(e.target.value)}
-              required
-              placeholder="Public key"
-              style={{ marginLeft: '10px', padding: '5px', width: '400px' }}
-            />
-          </label>
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: loading ? '#ccc' : '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: loading ? 'not-allowed' : 'pointer',
-          }}
-        >
-          {loading ? 'Registering...' : 'Register Official'}
-        </button>
-      </form>
-
+      {/* Status Message */}
       {message && (
-        <div
-          style={{
-            padding: '10px',
-            marginBottom: '20px',
-            backgroundColor: message.type === 'success' ? '#d4edda' : '#f8d7da',
-            color: message.type === 'success' ? '#155724' : '#721c24',
-            borderRadius: '4px',
-          }}
-        >
-          {message.text}
-        </div>
+        <Alert variant={message.type === 'success' ? 'success' : 'destructive'}>
+          <AlertDescription>{message.text}</AlertDescription>
+        </Alert>
       )}
 
-      <h3>Registered Officials</h3>
-      {officials.length === 0 ? (
-        <p>No officials registered yet.</p>
-      ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#f8f9fa' }}>
-              <th style={{ padding: '10px', border: '1px solid #ddd' }}>ID</th>
-              <th style={{ padding: '10px', border: '1px solid #ddd' }}>Name</th>
-              <th style={{ padding: '10px', border: '1px solid #ddd' }}>Authority</th>
-            </tr>
-          </thead>
-          <tbody>
-            {officials.map((official, idx) => (
-              <tr key={idx}>
-                <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                  {official.account.officialId.toString()}
-                </td>
-                <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                  {new TextDecoder().decode(new Uint8Array(official.account.name)).replace(/\0/g, '')}
-                </td>
-                <td style={{ padding: '10px', border: '1px solid #ddd', fontSize: '12px' }}>
-                  {official.account.authority.toString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      {/* Registered Officials Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Registered Officials</CardTitle>
+          <CardDescription>
+            View all officials registered on-chain
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {officials.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">
+              No officials registered yet.
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Authority</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {officials.map((official, idx) => (
+                  <TableRow key={idx}>
+                    <TableCell className="font-medium">
+                      {official.account.officialId.toString()}
+                    </TableCell>
+                    <TableCell>
+                      {new TextDecoder().decode(new Uint8Array(official.account.name)).replace(/\0/g, '')}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {official.account.authority.toString()}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -2,6 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAnchorProgram } from '../hooks/useAnchorProgram';
 import { registerVideo, getVideosForOfficial } from '../services/solana';
 import { uploadVideo, getIPFSDownloadUrl } from '../services/api';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Alert, AlertDescription } from './ui/alert';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+import { Badge } from './ui/badge';
 
 interface OfficialPanelProps {
   officialAccount: any;
@@ -74,111 +81,131 @@ export function OfficialPanel({ officialAccount }: OfficialPanelProps) {
     return 'Unknown';
   };
 
-  const getStatusColor = (status: any) => {
-    if (status.unverified !== undefined) return '#ffc107';
-    if (status.authentic !== undefined) return '#28a745';
-    if (status.disputed !== undefined) return '#dc3545';
-    return '#6c757d';
+  const getStatusVariant = (status: any): 'warning' | 'success' | 'destructive' | 'secondary' => {
+    if (status.unverified !== undefined) return 'warning';
+    if (status.authentic !== undefined) return 'success';
+    if (status.disputed !== undefined) return 'destructive';
+    return 'secondary';
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1000px' }}>
-      <h2>Official Panel - Upload Videos</h2>
-      <p>Official: {new TextDecoder().decode(new Uint8Array(officialAccount.account.name)).replace(/\0/g, '')}</p>
-
-      <div style={{ marginBottom: '40px' }}>
-        <h3>Upload New Video</h3>
-        <div style={{ marginBottom: '15px' }}>
-          <input
-            type="file"
-            accept="video/*"
-            onChange={handleFileChange}
-            disabled={loading}
-          />
-        </div>
-        <button
-          onClick={handleUpload}
-          disabled={!file || loading}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: !file || loading ? '#ccc' : '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: !file || loading ? 'not-allowed' : 'pointer',
-          }}
-        >
-          {loading ? 'Uploading...' : 'Upload Video'}
-        </button>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight">Official Panel</h2>
+        <p className="text-muted-foreground">
+          Upload and manage your official videos
+        </p>
+        <p className="text-sm text-muted-foreground mt-1">
+          Official: <span className="font-medium">{new TextDecoder().decode(new Uint8Array(officialAccount.account.name)).replace(/\0/g, '')}</span>
+        </p>
       </div>
 
+      {/* Upload New Video */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Upload New Video</CardTitle>
+          <CardDescription>
+            Upload a video to IPFS and register it on the blockchain
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div>
+            <Label htmlFor="video" className="text-sm font-medium block mb-3">Video File</Label>
+            <Input
+              id="video"
+              type="file"
+              accept="video/*"
+              onChange={handleFileChange}
+              disabled={loading}
+              className="cursor-pointer h-10 py-0 flex items-center file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 file:cursor-pointer"
+            />
+            {file && (
+              <p className="text-sm text-muted-foreground mt-3">
+                Selected: <span className="font-medium">{file.name}</span> ({(file.size / 1024 / 1024).toFixed(2)} MB)
+              </p>
+            )}
+          </div>
+          <Button
+            onClick={handleUpload}
+            disabled={!file || loading}
+            className="w-full sm:w-auto"
+          >
+            {loading ? 'Uploading...' : 'Upload Video'}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Status Message */}
       {message && (
-        <div
-          style={{
-            padding: '10px',
-            marginBottom: '20px',
-            backgroundColor: message.type === 'success' ? '#d4edda' : '#f8d7da',
-            color: message.type === 'success' ? '#155724' : '#721c24',
-            borderRadius: '4px',
-          }}
-        >
-          {message.text}
-        </div>
+        <Alert variant={message.type === 'success' ? 'success' : 'destructive'}>
+          <AlertDescription>{message.text}</AlertDescription>
+        </Alert>
       )}
 
-      <h3>Registered Videos</h3>
-      {videos.length === 0 ? (
-        <p>No videos registered yet.</p>
-      ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#f8f9fa' }}>
-              <th style={{ padding: '10px', border: '1px solid #ddd' }}>IPFS CID</th>
-              <th style={{ padding: '10px', border: '1px solid #ddd' }}>Status</th>
-              <th style={{ padding: '10px', border: '1px solid #ddd' }}>Votes</th>
-              <th style={{ padding: '10px', border: '1px solid #ddd' }}>Timestamp</th>
-            </tr>
-          </thead>
-          <tbody>
-            {videos.map((video, idx) => {
-              const cidString = new TextDecoder().decode(new Uint8Array(video.account.ipfsCid)).replace(/\0/g, '');
-              const status = video.account.status;
-              const votes = video.account.votes || [];
-              const authenticVotes = votes.filter((v: any) => v.isAuthentic).length;
-              const fakeVotes = votes.length - authenticVotes;
+      {/* Registered Videos */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Registered Videos</CardTitle>
+          <CardDescription>
+            View all your videos registered on-chain
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {videos.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">
+              No videos registered yet.
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>IPFS CID</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Votes</TableHead>
+                  <TableHead>Timestamp</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {videos.map((video, idx) => {
+                  const cidString = new TextDecoder().decode(new Uint8Array(video.account.ipfsCid)).replace(/\0/g, '');
+                  const status = video.account.status;
+                  const votes = video.account.votes || [];
+                  const authenticVotes = votes.filter((v: any) => v.isAuthentic).length;
+                  const fakeVotes = votes.length - authenticVotes;
 
-              return (
-                <tr key={idx}>
-                  <td style={{ padding: '10px', border: '1px solid #ddd', fontSize: '12px' }}>
-                    <a href={getIPFSDownloadUrl(cidString)} target="_blank" rel="noopener noreferrer">
-                      {cidString}
-                    </a>
-                  </td>
-                  <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                    <span
-                      style={{
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        backgroundColor: getStatusColor(status),
-                        color: 'white',
-                        fontSize: '12px',
-                      }}
-                    >
-                      {getStatusDisplay(status)}
-                    </span>
-                  </td>
-                  <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                    ✓ {authenticVotes} / ✗ {fakeVotes}
-                  </td>
-                  <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                    {new Date(video.account.timestamp.toNumber() * 1000).toLocaleString()}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      )}
+                  return (
+                    <TableRow key={idx}>
+                      <TableCell className="font-mono text-xs max-w-xs">
+                        <a
+                          href={getIPFSDownloadUrl(cidString)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline break-all"
+                        >
+                          {cidString}
+                        </a>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={getStatusVariant(status)}>
+                          {getStatusDisplay(status)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-green-600 font-medium">✓ {authenticVotes}</span>
+                        {' / '}
+                        <span className="text-red-600 font-medium">✗ {fakeVotes}</span>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {new Date(video.account.timestamp.toNumber() * 1000).toLocaleString()}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
