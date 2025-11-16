@@ -1,28 +1,38 @@
-import { create, IPFSHTTPClient } from 'ipfs-http-client';
 import fs from 'fs';
+import crypto from 'crypto';
+import path from 'path';
 import { config } from '../config';
 
-let ipfsClient: IPFSHTTPClient | null = null;
+// Storage directory for mock IPFS (for hackathon demo)
+const MOCK_IPFS_STORAGE = path.join(__dirname, '../../uploads/ipfs-mock');
 
 /**
- * Initialize IPFS client (lazy initialization)
+ * Initialize mock IPFS storage directory
  */
-function getIPFSClient(): IPFSHTTPClient {
-  if (!ipfsClient) {
-    ipfsClient = create({
-      host: config.ipfs.host,
-      port: config.ipfs.port,
-      protocol: config.ipfs.protocol,
-    });
+function initMockStorage() {
+  if (!fs.existsSync(MOCK_IPFS_STORAGE)) {
+    fs.mkdirSync(MOCK_IPFS_STORAGE, { recursive: true });
   }
-  return ipfsClient;
 }
 
 /**
- * Upload file to IPFS
+ * Generate a mock CID based on file content
+ * Uses SHA-256 hash to create a deterministic CID-like string
+ */
+function generateMockCID(fileBuffer: Buffer): string {
+  const hash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+  // Format like a IPFS CID: Qm + base58-like characters (using hex for simplicity)
+  return `Qm${hash.substring(0, 44)}`;
+}
+
+/**
+ * Upload file to IPFS (Mock implementation for hackathon)
  * Returns CID (Content Identifier)
  *
- * @throws Error if filePath is invalid, file cannot be read, or IPFS upload fails
+ * NOTE: This is a mock implementation for development/demo.
+ * For production, replace with actual IPFS integration using ipfs-http-client.
+ *
+ * @throws Error if filePath is invalid, file cannot be read, or upload fails
  */
 export async function uploadToIPFS(filePath: string): Promise<string> {
   // Input validation
@@ -35,12 +45,21 @@ export async function uploadToIPFS(filePath: string): Promise<string> {
     throw new Error(`File not found: ${filePath}`);
   }
 
-  // Try to read file asynchronously and upload to IPFS
   try {
+    initMockStorage();
+
+    // Read file
     const fileBuffer = await fs.promises.readFile(filePath);
-    const client = getIPFSClient();
-    const result = await client.add(fileBuffer);
-    return result.cid.toString();
+
+    // Generate deterministic CID
+    const cid = generateMockCID(fileBuffer);
+
+    // Store file in mock IPFS storage
+    const storagePath = path.join(MOCK_IPFS_STORAGE, cid);
+    await fs.promises.writeFile(storagePath, fileBuffer);
+
+    console.log(`[MOCK IPFS] Uploaded file with CID: ${cid}`);
+    return cid;
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`Failed to upload file to IPFS: ${error.message}`);
@@ -50,10 +69,13 @@ export async function uploadToIPFS(filePath: string): Promise<string> {
 }
 
 /**
- * Download file from IPFS
+ * Download file from IPFS (Mock implementation for hackathon)
  * Returns Buffer of file contents
  *
- * @throws Error if CID is invalid or IPFS download fails
+ * NOTE: This is a mock implementation for development/demo.
+ * For production, replace with actual IPFS integration using ipfs-http-client.
+ *
+ * @throws Error if CID is invalid or download fails
  */
 export async function downloadFromIPFS(cid: string): Promise<Buffer> {
   // Input validation
@@ -61,16 +83,20 @@ export async function downloadFromIPFS(cid: string): Promise<Buffer> {
     throw new Error('Invalid CID: must be a non-empty string');
   }
 
-  // Try to download from IPFS
   try {
-    const client = getIPFSClient();
-    const chunks: Uint8Array[] = [];
+    initMockStorage();
 
-    for await (const chunk of client.cat(cid)) {
-      chunks.push(chunk);
+    // Retrieve file from mock storage
+    const storagePath = path.join(MOCK_IPFS_STORAGE, cid);
+
+    if (!fs.existsSync(storagePath)) {
+      throw new Error(`File not found for CID: ${cid}`);
     }
 
-    return Buffer.concat(chunks);
+    const fileBuffer = await fs.promises.readFile(storagePath);
+    console.log(`[MOCK IPFS] Downloaded file with CID: ${cid}`);
+
+    return fileBuffer;
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`Failed to download from IPFS: ${error.message}`);
