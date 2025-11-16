@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
 import ipfsRoutes from './routes/ipfs';
 import { config } from './config';
 
@@ -11,6 +12,9 @@ const PORT = config.port;
 
 app.use(cors());
 app.use(express.json());
+
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Routes
 app.get('/health', (req, res) => {

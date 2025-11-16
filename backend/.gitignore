@@ -1,8 +1,11 @@
 node_modules/
 dist/
 .env
-uploads/
 *.log
+
+# Uploaded videos (keep directory structure)
+uploads/social/*
+!uploads/social/.gitkeep
 
 # Database files
 data/
