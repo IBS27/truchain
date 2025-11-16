@@ -1,0 +1,137 @@
+import { useEffect, useState } from 'react';
+import { SocialVideo, socialApi } from '../services/api';
+import { VideoCard } from './VideoCard';
+import { UploadVideoModal } from './UploadVideoModal';
+import { FlagDetailsModal } from './FlagDetailsModal';
+import { VerifyPlaceholder } from './VerifyPlaceholder';
+import { Button } from './ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+
+export function SocialFeed() {
+  const [videos, setVideos] = useState<SocialVideo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [detailsModalVideoId, setDetailsModalVideoId] = useState<number | null>(null);
+  const [verifyingVideoId, setVerifyingVideoId] = useState<number | null>(null);
+
+  const loadVideos = async () => {
+    try {
+      const fetchedVideos = await socialApi.getAllVideos();
+      setVideos(fetchedVideos);
+    } catch (error) {
+      console.error('Failed to load videos:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadVideos();
+  }, []);
+
+  const handleUploadSuccess = () => {
+    loadVideos();
+  };
+
+  const handleFlagUpdate = () => {
+    loadVideos();
+  };
+
+  const handleVerifyClick = (videoId: number) => {
+    setVerifyingVideoId(videoId);
+  };
+
+  const handleDetailsClick = (videoId: number) => {
+    setDetailsModalVideoId(videoId);
+  };
+
+  const handleBackFromVerify = () => {
+    setVerifyingVideoId(null);
+  };
+
+  // If verifying a video, show placeholder
+  if (verifyingVideoId !== null) {
+    const video = videos.find(v => v.id === verifyingVideoId);
+    return (
+      <VerifyPlaceholder
+        videoId={verifyingVideoId}
+        videoTitle={video?.title || 'Unknown'}
+        onBack={handleBackFromVerify}
+      />
+    );
+  }
+
+  return (
+    <div className="relative">
+      {/* Header */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Social Feed</CardTitle>
+          <CardDescription>
+            Browse and verify video clips from the community
+          </CardDescription>
+        </CardHeader>
+      </Card>
+
+      {/* Loading State */}
+      {loading ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <div className="text-muted-foreground">Loading videos...</div>
+          </CardContent>
+        </Card>
+      ) : videos.length === 0 ? (
+        /* Empty State */
+        <Card>
+          <CardContent className="py-12 text-center">
+            <div className="text-6xl mb-4">📹</div>
+            <h3 className="text-xl font-semibold mb-2">No videos yet</h3>
+            <p className="text-muted-foreground mb-6">
+              Be the first to upload a video to the feed!
+            </p>
+            <Button onClick={() => setUploadModalOpen(true)}>
+              Upload Video
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        /* Video Grid */
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {videos.map(video => (
+            <VideoCard
+              key={video.id}
+              video={video}
+              onFlagUpdate={handleFlagUpdate}
+              onVerifyClick={handleVerifyClick}
+              onDetailsClick={handleDetailsClick}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Floating Action Button */}
+      {videos.length > 0 && (
+        <button
+          onClick={() => setUploadModalOpen(true)}
+          className="fixed bottom-8 right-8 w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg flex items-center justify-center text-2xl transition-colors z-40"
+          aria-label="Upload video"
+        >
+          +
+        </button>
+      )}
+
+      {/* Modals */}
+      <UploadVideoModal
+        isOpen={uploadModalOpen}
+        onClose={() => setUploadModalOpen(false)}
+        onUploadSuccess={handleUploadSuccess}
+      />
+
+      <FlagDetailsModal
+        videoId={detailsModalVideoId}
+        isOpen={detailsModalVideoId !== null}
+        onClose={() => setDetailsModalVideoId(null)}
+      />
+    </div>
+  );
+}
