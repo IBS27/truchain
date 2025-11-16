@@ -48,6 +48,8 @@ export function SocialFeed() {
 
   const handleBackFromVerify = () => {
     setVerifyingVideoId(null);
+    // Reload videos to get updated tags/counts after voting
+    loadVideos();
   };
 
   // If verifying a video, show placeholder

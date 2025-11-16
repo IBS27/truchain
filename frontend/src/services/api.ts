@@ -58,10 +58,17 @@ export const socialApi = {
   },
 
   async flagVideo(videoId: number, flagType: 'verified' | 'misleading' | 'unverified' | 'fake'): Promise<{ video: SocialVideo; flagCounts: FlagCounts }> {
+    // Get or create a unique user ID for this browser
+    let userId = localStorage.getItem('truchain_user_id');
+    if (!userId) {
+      userId = `user_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+      localStorage.setItem('truchain_user_id', userId);
+    }
+
     const response = await fetch(`${BACKEND_URL}/api/social/videos/${videoId}/flag`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ flagType }),
+      body: JSON.stringify({ flagType, userId }),
     });
 
     if (!response.ok) throw new Error('Failed to flag video');

@@ -15,10 +15,13 @@ CREATE TABLE IF NOT EXISTS social_videos (
 CREATE TABLE IF NOT EXISTS social_flags (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   video_id INTEGER NOT NULL,
+  user_id TEXT NOT NULL,
   flag_type TEXT NOT NULL CHECK(flag_type IN ('verified', 'misleading', 'unverified', 'fake')),
   flagged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (video_id) REFERENCES social_videos(id)
+  FOREIGN KEY (video_id) REFERENCES social_videos(id),
+  UNIQUE(video_id, user_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_social_videos_uploaded_at ON social_videos(uploaded_at DESC);
 CREATE INDEX IF NOT EXISTS idx_social_flags_video_id ON social_flags(video_id);
+CREATE INDEX IF NOT EXISTS idx_social_flags_user_video ON social_flags(user_id, video_id);

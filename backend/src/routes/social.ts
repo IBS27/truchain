@@ -69,10 +69,14 @@ router.get('/videos', (req: Request, res: Response) => {
 router.post('/videos/:id/flag', (req: Request, res: Response) => {
   try {
     const videoId = parseInt(req.params.id);
-    const { flagType } = req.body;
+    const { flagType, userId } = req.body;
 
     if (!['verified', 'misleading', 'unverified', 'fake'].includes(flagType)) {
       return res.status(400).json({ error: 'Invalid flag type' });
+    }
+
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
     }
 
     const video = SocialService.getVideoById(videoId);
@@ -80,7 +84,7 @@ router.post('/videos/:id/flag', (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Video not found' });
     }
 
-    SocialService.addFlag(videoId, flagType);
+    SocialService.addFlag(videoId, userId, flagType);
     const flagCounts = SocialService.getFlagCounts(videoId);
     const updatedVideo = SocialService.getVideoById(videoId);
 

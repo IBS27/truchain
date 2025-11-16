@@ -46,14 +46,7 @@ export class SocialService {
     return stmt.get(id) as SocialVideo | undefined;
   }
 
-  static addFlag(videoId: number, flagType: 'verified' | 'misleading' | 'unverified' | 'fake'): void {
-    // Insert flag
-    const insertStmt = db.prepare(`
-      INSERT INTO social_flags (video_id, flag_type)
-      VALUES (?, ?)
-    `);
-    insertStmt.run(videoId, flagType);
-
+  static addFlag(videoId: number, userId: string, flagType: 'verified' | 'misleading' | 'unverified' | 'fake'): void {
     // Map flag types to column names (prevents SQL injection)
     const columnMap: Record<typeof flagType, string> = {
       'verified': 'verified_count',
@@ -62,15 +55,57 @@ export class SocialService {
       'fake': 'fake_count'
     };
 
-    const columnName = columnMap[flagType];
+    // Use transaction to ensure atomicity
+    const transaction = db.transaction(() => {
+      // Check if user already has a vote for this video
+      const existingVote = db.prepare(`
+        SELECT flag_type FROM social_flags
+        WHERE video_id = ? AND user_id = ?
+      `).get(videoId, userId) as { flag_type: string } | undefined;
 
-    // Update video counts
-    const updateStmt = db.prepare(`
-      UPDATE social_videos
-      SET ${columnName} = ${columnName} + 1
-      WHERE id = ?
-    `);
-    updateStmt.run(videoId);
+      if (existingVote && existingVote.flag_type !== flagType) {
+        // User is changing their vote - decrement old count
+        const oldColumnName = columnMap[existingVote.flag_type as typeof flagType];
+        db.prepare(`
+          UPDATE social_videos
+          SET ${oldColumnName} = MAX(0, ${oldColumnName} - 1)
+          WHERE id = ?
+        `).run(videoId);
+
+        // Update the flag type
+        db.prepare(`
+          UPDATE social_flags
+          SET flag_type = ?, flagged_at = CURRENT_TIMESTAMP
+          WHERE video_id = ? AND user_id = ?
+        `).run(flagType, videoId, userId);
+
+        // Increment new count
+        const newColumnName = columnMap[flagType];
+        db.prepare(`
+          UPDATE social_videos
+          SET ${newColumnName} = ${newColumnName} + 1
+          WHERE id = ?
+        `).run(videoId);
+      } else if (!existingVote) {
+        // New vote - insert flag
+        db.prepare(`
+          INSERT INTO social_flags (video_id, user_id, flag_type)
+          VALUES (?, ?, ?)
+        `).run(videoId, userId, flagType);
+
+        // Increment count
+        const columnName = columnMap[flagType];
+        db.prepare(`
+          UPDATE social_videos
+          SET ${columnName} = ${columnName} + 1
+          WHERE id = ?
+        `).run(videoId);
+      }
+      // If existingVote.flag_type === flagType, do nothing (user clicked same button)
+    });
+
+    // Execute transaction
+    transaction();
 
     // Recalculate dominant tag
     this.updateDominantTag(videoId);
