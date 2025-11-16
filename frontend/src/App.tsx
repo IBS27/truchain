@@ -13,6 +13,7 @@ import { useRoleDetection } from './hooks/useRoleDetection';
 import { AdminPanel } from './components/AdminPanel';
 import { OfficialPanel } from './components/OfficialPanel';
 import { EndorserPanel } from './components/EndorserPanel';
+import { SocialFeed } from './components/SocialFeed';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
 import { Badge } from './components/ui/badge';
 import { WalletButton } from './components/WalletButton';
@@ -82,19 +83,7 @@ function AppContent() {
       {role === 'admin' && <AdminPanel />}
       {role === 'official' && officialAccount && <OfficialPanel officialAccount={officialAccount} />}
       {role === 'endorser' && <EndorserPanel assignedOfficials={assignedOfficials} />}
-      {role === 'user' && (
-        <Card>
-          <CardHeader className="text-center">
-            <CardTitle>User View</CardTitle>
-            <CardDescription>
-              You don't have admin, official, or endorser privileges.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-muted-foreground">Social feed functionality coming soon!</p>
-          </CardContent>
-        </Card>
-      )}
+      {role === 'user' && <SocialFeed />}
       {!role && (
         <Card>
           <CardHeader className="text-center">
