@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { SocialVideo, socialApi } from '../services/api';
+import type { SocialVideo } from '../services/api';
+import { socialApi } from '../services/api';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';

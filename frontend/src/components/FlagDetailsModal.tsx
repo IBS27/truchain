@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { FlagCounts, socialApi } from '../services/api';
+import type { FlagCounts } from '../services/api';
+import { socialApi } from '../services/api';
 import {
   Dialog,
   DialogContent,

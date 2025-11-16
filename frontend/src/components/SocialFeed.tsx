@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { SocialVideo, socialApi } from '../services/api';
+import type { SocialVideo } from '../services/api';
+import { socialApi } from '../services/api';
 import { VideoCard } from './VideoCard';
 import { UploadVideoModal } from './UploadVideoModal';
 import { FlagDetailsModal } from './FlagDetailsModal';
