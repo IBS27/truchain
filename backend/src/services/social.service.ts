@@ -1,6 +1,4 @@
 import { db } from '../database/db';
-import path from 'path';
-import fs from 'fs';
 
 export interface SocialVideo {
   id: number;
@@ -56,10 +54,20 @@ export class SocialService {
     `);
     insertStmt.run(videoId, flagType);
 
+    // Map flag types to column names (prevents SQL injection)
+    const columnMap: Record<typeof flagType, string> = {
+      'verified': 'verified_count',
+      'misleading': 'misleading_count',
+      'unverified': 'unverified_count',
+      'fake': 'fake_count'
+    };
+
+    const columnName = columnMap[flagType];
+
     // Update video counts
     const updateStmt = db.prepare(`
       UPDATE social_videos
-      SET ${flagType}_count = ${flagType}_count + 1
+      SET ${columnName} = ${columnName} + 1
       WHERE id = ?
     `);
     updateStmt.run(videoId);
