@@ -18,7 +18,7 @@ from audio_fingerprint import AudioFingerprinter
 class VideoDatabase:
     """Manages video fingerprints database (simulates blockchain storage)."""
     
-    def __init__(self, db_path: str = "video_database.json"):
+    def __init__(self, db_path: str = "video_database_hybrid.json"):
         """
         Initialize database.
         
@@ -72,37 +72,35 @@ class VideoDatabase:
     
     def add_video(
         self,
-        video_path: str,
+        ipfs_cid: str,
+        title: str,
         fingerprints: list,
-        ipfs_cid: Optional[str] = None,
+        duration: float,
+        description: str = "",
+        transcripts: Optional[list] = None,
+        video_path: Optional[str] = None,
         metadata: Optional[Dict] = None
     ) -> str:
         """
-        Add video fingerprints to database.
+        Add video to database.
         
         Args:
-            video_path: Path to video file
-            fingerprints: List of fingerprint dictionaries
-            ipfs_cid: Optional IPFS content identifier
+            ipfs_cid: IPFS content identifier (used as video ID)
+            title: Video title
+            fingerprints: List of audio fingerprint/embedding dictionaries
+            duration: Video duration in seconds
+            description: Video description
+            transcripts: Optional list of transcript segments
+            video_path: Optional path to original video file (for legacy support)
             metadata: Optional additional metadata
         
         Returns:
-            Video ID
+            Video ID (same as ipfs_cid)
         """
-        video_id = self.generate_video_id(video_path)
-        
         # Check if already exists
-        if self.video_exists(video_id):
-            raise ValueError(f"Video already exists in database: {video_id}")
-        
-        # Get video info
-        fingerprinter = AudioFingerprinter(video_path)
-        duration = fingerprinter.get_duration()
-        
-        # Generate mock IPFS CID if not provided
-        if ipfs_cid is None:
-            # In real implementation, this would be actual IPFS CID
-            ipfs_cid = f"Qm{hashlib.sha256(Path(video_path).name.encode()).hexdigest()[:44]}"
+        if self.video_exists(ipfs_cid):
+            # Return existing video ID instead of raising error
+            return ipfs_cid
         
         # Prepare metadata
         if metadata is None:
@@ -110,30 +108,40 @@ class VideoDatabase:
         
         metadata.update({
             'upload_date': datetime.now().isoformat(),
-            'filename': Path(video_path).name
+            'description': description
         })
+        
+        if video_path:
+            metadata['filename'] = Path(video_path).name
         
         # Create video entry
         video_entry = {
-            'id': video_id,
+            'id': ipfs_cid,
             'ipfs_cid': ipfs_cid,
-            'title': metadata.get('title', Path(video_path).stem),
+            'title': title,
+            'description': description,
             'duration': duration,
             'fingerprints': fingerprints,
             'metadata': metadata
         }
+        
+        # Add transcripts if provided
+        if transcripts is not None:
+            video_entry['transcripts'] = transcripts
         
         # Add to database
         self.data['videos'].append(video_entry)
         self.save()
         
         print(f"Added video to database:")
-        print(f"  ID: {video_id}")
-        print(f"  IPFS CID: {ipfs_cid}")
+        print(f"  ID: {ipfs_cid}")
+        print(f"  Title: {title}")
         print(f"  Duration: {duration:.2f}s")
         print(f"  Fingerprints: {len(fingerprints)}")
+        if transcripts:
+            print(f"  Transcripts: {len(transcripts)} segments")
         
-        return video_id
+        return ipfs_cid
     
     def get_video(self, video_id: str) -> Optional[Dict]:
         """
@@ -188,7 +196,7 @@ class VideoDatabase:
 
 def process_video(
     video_path: str,
-    db_path: str = "video_database.json",
+    db_path: str = "video_database_hybrid.json",
     title: Optional[str] = None,
     campaign: Optional[str] = None,
     ipfs_cid: Optional[str] = None
@@ -237,7 +245,7 @@ def main():
     if len(sys.argv) < 2:
         print("Usage: python video_processor.py <video_file> [options]")
         print("\nOptions:")
-        print("  --db <path>         Database file path (default: video_database.json)")
+        print("  --db <path>         Database file path (default: video_database_hybrid.json)")
         print("  --title <title>     Video title")
         print("  --campaign <name>   Campaign name")
         print("  --ipfs <cid>        IPFS Content ID")
@@ -252,7 +260,7 @@ def main():
     
     # Parse arguments
     video_path = None
-    db_path = "video_database.json"
+    db_path = "video_database_hybrid.json"
     title = None
     campaign = None
     ipfs_cid = None
