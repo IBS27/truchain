@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAnchorProgram } from '../hooks/useAnchorProgram';
 import { registerVideo, getVideosForOfficial } from '../services/solana';
 import { uploadVideo, getIPFSDownloadUrl } from '../services/api';
@@ -14,7 +14,7 @@ export function OfficialPanel({ officialAccount }: OfficialPanelProps) {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [videos, setVideos] = useState<any[]>([]);
 
-  const loadVideos = async () => {
+  const loadVideos = useCallback(async () => {
     if (!program) return;
     try {
       const officialVideos = await getVideosForOfficial(program, officialAccount.publicKey);
@@ -22,11 +22,11 @@ export function OfficialPanel({ officialAccount }: OfficialPanelProps) {
     } catch (error) {
       console.error('Failed to load videos:', error);
     }
-  };
+  }, [program, officialAccount]);
 
   useEffect(() => {
     loadVideos();
-  }, [program, officialAccount]);
+  }, [loadVideos]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {

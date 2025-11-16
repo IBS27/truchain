@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PublicKey } from '@solana/web3.js';
 import { useAnchorProgram } from '../hooks/useAnchorProgram';
 import { registerOfficial, getAllOfficials } from '../services/solana';
@@ -50,7 +50,7 @@ export function AdminPanel() {
 
       const tx = await registerOfficial(
         program,
-        parseInt(officialId),
+        parseInt(officialId, 10),
         name,
         authorityPubkey,
         [endorser1Pubkey, endorser2Pubkey, endorser3Pubkey]
@@ -77,9 +77,9 @@ export function AdminPanel() {
   };
 
   // Load officials on mount
-  useState(() => {
+  useEffect(() => {
     loadOfficials();
-  });
+  }, []);
 
   return (
     <div style={{ padding: '20px', maxWidth: '800px' }}>

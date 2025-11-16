@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useAnchorProgram } from '../hooks/useAnchorProgram';
 import { getVideosForOfficial, endorseVideo } from '../services/solana';
@@ -17,7 +17,7 @@ export function EndorserPanel({ assignedOfficials }: EndorserPanelProps) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const loadPendingVideos = async () => {
+  const loadPendingVideos = useCallback(async () => {
     if (!program || !publicKey) return;
 
     try {
@@ -44,11 +44,11 @@ export function EndorserPanel({ assignedOfficials }: EndorserPanelProps) {
     } catch (error) {
       console.error('Failed to load pending videos:', error);
     }
-  };
+  }, [program, publicKey, assignedOfficials]);
 
   useEffect(() => {
     loadPendingVideos();
-  }, [program, publicKey, assignedOfficials]);
+  }, [loadPendingVideos]);
 
   const handleVote = async (video: any, isAuthentic: boolean) => {
     if (!program) return;
