@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { BrowserRouter, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import {
   ConnectionProvider,
   WalletProvider,
@@ -7,95 +8,82 @@ import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from '@solana/web3.js';
-import { useWallet } from '@solana/wallet-adapter-react';
 
-import { useRoleDetection } from './hooks/useRoleDetection';
-import { AdminPanel } from './components/AdminPanel';
-import { OfficialPanel } from './components/OfficialPanel';
-import { EndorserPanel } from './components/EndorserPanel';
-import { SocialFeed } from './components/SocialFeed';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
-import { Badge } from './components/ui/badge';
+import { FeedPage } from './pages/FeedPage';
+import { PortalPage } from './pages/PortalPage';
 import { WalletButton } from './components/WalletButton';
 
-function AppContent() {
-  const { publicKey } = useWallet();
-  const { role, loading, officialAccount, assignedOfficials } = useRoleDetection(publicKey);
-
-  if (!publicKey) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Card className="max-w-md w-full">
-          <CardHeader className="text-center">
-            <CardTitle className="text-3xl mb-2">TruChain</CardTitle>
-            <CardDescription className="text-base">
-              Video Authenticity Verification System
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center">
-            <p className="text-muted-foreground">
-              Please connect your wallet to continue
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Card className="max-w-md w-full">
-          <CardHeader className="text-center">
-            <CardTitle>Detecting your role...</CardTitle>
-            <CardDescription>
-              Please wait while we check your permissions on-chain
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    );
-  }
+function Header() {
+  const location = useLocation();
+  const isPortal = location.pathname.startsWith('/portal');
 
   return (
-    <div className="pb-8">
-      {/* Role Info Banner - Only show for non-user roles */}
-      {role && role !== 'user' && (
-        <Card className="mb-6">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-muted-foreground">Role:</span>
-                <Badge variant={role === 'admin' ? 'default' : role === 'official' ? 'success' : 'secondary'} className="text-sm">
-                  {role}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-muted-foreground">Wallet:</span>
-                <code className="text-xs bg-muted px-2 py-1 rounded">
-                  {publicKey.toString().slice(0, 8)}...{publicKey.toString().slice(-8)}
-                </code>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+      <div className="container flex h-14 md:h-16 items-center justify-between px-4 mx-auto max-w-7xl">
+        <div className="flex items-center gap-6">
+          <Link to="/feed" className="flex items-center gap-2">
+            <h1 className="text-xl md:text-2xl font-bold bg-linear-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+              TruChain
+            </h1>
+          </Link>
+          <nav className="hidden md:flex items-center gap-4">
+            <Link
+              to="/feed"
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                !isPortal ? 'text-foreground' : 'text-muted-foreground'
+              }`}
+            >
+              Feed
+            </Link>
+            <Link
+              to="/portal"
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isPortal ? 'text-foreground' : 'text-muted-foreground'
+              }`}
+            >
+              Portal
+            </Link>
+          </nav>
+        </div>
+        <div className="flex items-center gap-4">
+          {/* Mobile nav */}
+          <nav className="flex md:hidden items-center gap-3">
+            <Link
+              to="/feed"
+              className={`text-xs font-medium transition-colors ${
+                !isPortal ? 'text-foreground' : 'text-muted-foreground'
+              }`}
+            >
+              Feed
+            </Link>
+            <Link
+              to="/portal"
+              className={`text-xs font-medium transition-colors ${
+                isPortal ? 'text-foreground' : 'text-muted-foreground'
+              }`}
+            >
+              Portal
+            </Link>
+          </nav>
+          {isPortal && <WalletButton />}
+        </div>
+      </div>
+    </header>
+  );
+}
 
-      {/* Main Content */}
-      {role === 'admin' && <AdminPanel />}
-      {role === 'official' && officialAccount && <OfficialPanel officialAccount={officialAccount} />}
-      {role === 'endorser' && <EndorserPanel assignedOfficials={assignedOfficials} />}
-      {role === 'user' && <SocialFeed />}
-      {!role && (
-        <Card>
-          <CardHeader className="text-center">
-            <CardTitle className="text-destructive">Error</CardTitle>
-            <CardDescription>
-              Failed to detect your role. Please try reconnecting your wallet.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      )}
+function AppRoutes() {
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <Header />
+      <main className="md:container md:mx-auto md:px-4 md:py-6 md:max-w-7xl">
+        <Routes>
+          <Route path="/feed" element={<FeedPage />} />
+          <Route path="/portal" element={<PortalPage />} />
+          <Route path="/" element={<Navigate to="/feed" replace />} />
+          <Route path="*" element={<Navigate to="/feed" replace />} />
+        </Routes>
+      </main>
     </div>
   );
 }
@@ -113,24 +101,9 @@ function App() {
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
-          <div className="min-h-screen bg-slate-50">
-            {/* Header - Compact on mobile */}
-            <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-              <div className="container flex h-14 md:h-16 items-center justify-between px-4 mx-auto max-w-7xl">
-                <div className="flex items-center gap-2">
-                  <h1 className="text-xl md:text-2xl font-bold bg-linear-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-                    TruChain
-                  </h1>
-                </div>
-                <WalletButton />
-              </div>
-            </header>
-
-            {/* Main Content */}
-            <main className="md:container md:mx-auto md:px-4 md:py-6 md:max-w-7xl">
-              <AppContent />
-            </main>
-          </div>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
         </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
