@@ -9,6 +9,9 @@ import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from '@solana/web3.js';
 
+// Required for wallet adapter modal to work
+import '@solana/wallet-adapter-react-ui/styles.css';
+
 import { FeedPage } from './pages/FeedPage';
 import { PortalPage } from './pages/PortalPage';
 import { WalletButton } from './components/WalletButton';
