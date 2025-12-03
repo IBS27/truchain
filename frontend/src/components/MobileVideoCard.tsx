@@ -161,7 +161,7 @@ export function MobileVideoCard({ video, isActive, onVerifyClick, onDetailsClick
       {/* Mute/Unmute Button - Top Right */}
       <button
         onClick={handleMuteToggle}
-        className="absolute top-20 right-4 w-10 h-10 bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white z-10"
+        className="absolute top-20 right-4 w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white z-10 border border-white/20 active:scale-95 transition-all hover:bg-white/20"
       >
         {isMuted ? (
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,7 +182,12 @@ export function MobileVideoCard({ video, isActive, onVerifyClick, onDetailsClick
           onClick={onDetailsClick}
           className={`flex flex-col items-center animate-slide-up opacity-0 animate-delay-100`}
         >
-          <div className={`w-12 h-12 rounded-full ${status.bg} flex items-center justify-center text-white text-xl shadow-lg ring-2 ${status.ring} ring-offset-2 ring-offset-black/50`}>
+          <div className={`w-12 h-12 rounded-full backdrop-blur-md flex items-center justify-center text-white text-xl shadow-lg border active:scale-95 transition-transform ${
+            status.label === 'Verified' ? 'bg-emerald-500/20 border-emerald-400/40 shadow-emerald-500/20' :
+            status.label === 'Misleading' ? 'bg-amber-500/20 border-amber-400/40 shadow-amber-500/20' :
+            status.label === 'Fake' ? 'bg-red-500/20 border-red-400/40 shadow-red-500/20' :
+            'bg-white/10 border-white/20 shadow-white/10'
+          }`}>
             {status.icon}
           </div>
           <span className="text-white text-xs mt-1 font-medium drop-shadow-lg">{status.label}</span>
@@ -193,7 +198,7 @@ export function MobileVideoCard({ video, isActive, onVerifyClick, onDetailsClick
           onClick={onVerifyClick}
           className="flex flex-col items-center animate-slide-up opacity-0 animate-delay-200"
         >
-          <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-lg ring-2 ring-blue-400 ring-offset-2 ring-offset-black/50 active:scale-95 transition-transform">
+          <div className="w-12 h-12 rounded-full bg-cyan-500/20 backdrop-blur-md flex items-center justify-center text-cyan-300 shadow-lg shadow-cyan-500/25 border border-cyan-400/40 active:scale-95 transition-all hover:shadow-cyan-500/40 hover:bg-cyan-500/30">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
@@ -203,7 +208,7 @@ export function MobileVideoCard({ video, isActive, onVerifyClick, onDetailsClick
 
         {/* Share Button */}
         <button className="flex flex-col items-center animate-slide-up opacity-0 animate-delay-300">
-          <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white shadow-lg active:scale-95 transition-transform">
+          <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white shadow-lg border border-white/20 active:scale-95 transition-all hover:bg-white/20 hover:border-white/30">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
             </svg>

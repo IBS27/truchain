@@ -91,7 +91,7 @@ export function MobileSocialFeed() {
         </p>
         <button
           onClick={() => setUploadModalOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-full"
+          className="bg-cyan-500/20 backdrop-blur-md text-cyan-300 font-semibold py-3 px-6 rounded-full border border-cyan-400/40 shadow-lg shadow-cyan-500/25 hover:bg-cyan-500/30 hover:shadow-cyan-500/40 transition-all active:scale-95"
         >
           Upload Video
         </button>
@@ -134,7 +134,7 @@ export function MobileSocialFeed() {
       {/* Floating Upload Button */}
       <button
         onClick={() => setUploadModalOpen(true)}
-        className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg flex items-center justify-center text-white active:scale-95 transition-transform safe-area-bottom"
+        className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-cyan-500/20 backdrop-blur-md rounded-full shadow-lg shadow-cyan-500/25 flex items-center justify-center text-cyan-300 border border-cyan-400/40 active:scale-95 transition-all hover:bg-cyan-500/30 hover:shadow-cyan-500/40 safe-area-bottom"
       >
         <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
