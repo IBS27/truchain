@@ -84,45 +84,72 @@ export function SocialFeed() {
 
   return (
     <div className="relative">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">For You</h2>
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h2 className="text-3xl font-bold gradient-text tracking-tight">For You</h2>
+          <p className="text-muted-foreground text-sm mt-1">Discover and verify video authenticity</p>
+        </div>
         <Button
           onClick={() => setUploadModalOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md"
-          size="sm"
+          variant="glow"
+          size="default"
+          className="font-semibold"
         >
-          + Upload Video
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          Upload Video
         </Button>
       </div>
 
       {loading ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <div className="text-muted-foreground">Loading videos...</div>
+        <Card className="glass-card border-0">
+          <CardContent className="py-16 text-center">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-12 h-12 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+              <div className="text-muted-foreground">Loading videos...</div>
+            </div>
           </CardContent>
         </Card>
       ) : videos.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <div className="text-6xl mb-4">📹</div>
-            <h3 className="text-xl font-semibold mb-2">No videos yet</h3>
-            <p className="text-muted-foreground mb-6">
-              Be the first to upload a video to the feed!
-            </p>
-            <Button onClick={() => setUploadModalOpen(true)}>
-              Upload Video
-            </Button>
+        <Card className="glass-card border-0">
+          <CardContent className="py-16 text-center">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-20 h-20 rounded-2xl bg-secondary/50 flex items-center justify-center">
+                <svg className="w-10 h-10 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold mb-2">No videos yet</h3>
+                <p className="text-muted-foreground mb-6">
+                  Be the first to upload a video to the feed!
+                </p>
+              </div>
+              <Button onClick={() => setUploadModalOpen(true)} variant="glow">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Upload Video
+              </Button>
+            </div>
           </CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {videos.map(video => (
-            <VideoCard
+          {videos.map((video, index) => (
+            <div
               key={video.id}
-              video={video}
-              onVerifyClick={handleVerifyClick}
-              onDetailsClick={handleDetailsClick}
-            />
+              className="animate-slide-up opacity-0"
+              style={{ animationDelay: `${index * 75}ms`, animationFillMode: 'forwards' }}
+            >
+              <VideoCard
+                video={video}
+                onVerifyClick={handleVerifyClick}
+                onDetailsClick={handleDetailsClick}
+              />
+            </div>
           ))}
         </div>
       )}

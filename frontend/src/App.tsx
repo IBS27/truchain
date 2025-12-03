@@ -18,27 +18,48 @@ function Header() {
   const isPortal = location.pathname.startsWith('/portal');
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 glass">
       <div className="container flex h-14 md:h-16 items-center justify-between px-4 mx-auto max-w-7xl">
-        <div className="flex items-center gap-6">
-          <Link to="/feed" className="flex items-center gap-2">
-            <h1 className="text-xl md:text-2xl font-bold bg-linear-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+        <div className="flex items-center gap-8">
+          <Link to="/feed" className="flex items-center gap-3 group">
+            {/* Logo Icon */}
+            <div className="relative w-8 h-8 flex items-center justify-center">
+              <div className="absolute inset-0 bg-primary/20 rounded-lg blur-md group-hover:bg-primary/30 transition-colors" />
+              <svg
+                viewBox="0 0 24 24"
+                className="w-6 h-6 text-primary relative z-10"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                <path d="M2 17l10 5 10-5" />
+                <path d="M2 12l10 5 10-5" />
+              </svg>
+            </div>
+            <h1 className="text-xl md:text-2xl font-bold gradient-text-brand tracking-tight">
               TruChain
             </h1>
           </Link>
-          <nav className="hidden md:flex items-center gap-4">
+          <nav className="hidden md:flex items-center gap-1">
             <Link
               to="/feed"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                !isPortal ? 'text-foreground' : 'text-muted-foreground'
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                !isPortal
+                  ? 'text-foreground bg-secondary/50'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary/30'
               }`}
             >
               Feed
             </Link>
             <Link
               to="/portal"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isPortal ? 'text-foreground' : 'text-muted-foreground'
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                isPortal
+                  ? 'text-foreground bg-secondary/50'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary/30'
               }`}
             >
               Portal
@@ -47,19 +68,23 @@ function Header() {
         </div>
         <div className="flex items-center gap-4">
           {/* Mobile nav */}
-          <nav className="flex md:hidden items-center gap-3">
+          <nav className="flex md:hidden items-center gap-1">
             <Link
               to="/feed"
-              className={`text-xs font-medium transition-colors ${
-                !isPortal ? 'text-foreground' : 'text-muted-foreground'
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                !isPortal
+                  ? 'text-foreground bg-secondary/50'
+                  : 'text-muted-foreground'
               }`}
             >
               Feed
             </Link>
             <Link
               to="/portal"
-              className={`text-xs font-medium transition-colors ${
-                isPortal ? 'text-foreground' : 'text-muted-foreground'
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                isPortal
+                  ? 'text-foreground bg-secondary/50'
+                  : 'text-muted-foreground'
               }`}
             >
               Portal
@@ -74,9 +99,9 @@ function Header() {
 
 function AppRoutes() {
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-mesh">
       <Header />
-      <main className="md:container md:mx-auto md:px-4 md:py-6 md:max-w-7xl">
+      <main className="md:container md:mx-auto md:px-4 md:py-8 md:max-w-7xl animate-fade-in">
         <Routes>
           <Route path="/feed" element={<FeedPage />} />
           <Route path="/portal" element={<PortalPage />} />

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import type { SocialVideo } from '../services/api';
-import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 
 interface VideoCardProps {
@@ -11,13 +10,6 @@ interface VideoCardProps {
 
 export function VideoCard({ video, onVerifyClick, onDetailsClick }: VideoCardProps) {
   const [isPlaying, setIsPlaying] = useState(false);
-
-  const badgeVariant = {
-    verified: 'success' as const,
-    misleading: 'warning' as const,
-    unverified: 'secondary' as const,
-    fake: 'destructive' as const,
-  }[video.dominant_tag];
 
   const handlePlayPause = (e: React.MouseEvent<HTMLVideoElement>) => {
     const videoElement = e.currentTarget;
@@ -30,9 +22,56 @@ export function VideoCard({ video, onVerifyClick, onDetailsClick }: VideoCardPro
     }
   };
 
+  const getStatusConfig = (tag: string) => {
+    switch (tag) {
+      case 'verified':
+        return {
+          bg: 'bg-emerald-500/90',
+          icon: (
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          ),
+          label: 'Verified'
+        };
+      case 'misleading':
+        return {
+          bg: 'bg-amber-500/90',
+          icon: (
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          ),
+          label: 'Misleading'
+        };
+      case 'fake':
+        return {
+          bg: 'bg-red-500/90',
+          icon: (
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ),
+          label: 'Fake'
+        };
+      default:
+        return {
+          bg: 'bg-slate-600/90',
+          icon: (
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          ),
+          label: 'Unverified'
+        };
+    }
+  };
+
+  const status = getStatusConfig(video.dominant_tag);
+
   return (
-    <div className="relative bg-black rounded-lg overflow-hidden aspect-[9/16] group">
-      {/* Video Player - Full Container */}
+    <div className="relative bg-black rounded-2xl overflow-hidden aspect-[9/16] group shadow-2xl shadow-black/30 ring-1 ring-white/5 transition-all duration-300 hover:ring-primary/20 hover:shadow-primary/5">
+      {/* Video Player */}
       <video
         src={`http://localhost:3001${video.file_url}`}
         className="w-full h-full object-cover cursor-pointer"
@@ -42,70 +81,72 @@ export function VideoCard({ video, onVerifyClick, onDetailsClick }: VideoCardPro
         preload="metadata"
       />
 
-      {/* Gradient Overlays for Better Text Visibility */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 pointer-events-none" />
+      {/* Gradient Overlays */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/80 pointer-events-none" />
 
-      {/* Top Right - Status Badge */}
+      {/* Status Badge - Top Right */}
       <div className="absolute top-4 right-4 z-10">
         <div className={`
-          px-3 py-1.5 rounded-full font-semibold text-sm shadow-lg backdrop-blur-md
-          ${video.dominant_tag === 'verified' ? 'bg-green-600/95 text-white' : ''}
-          ${video.dominant_tag === 'misleading' ? 'bg-orange-500/95 text-white' : ''}
-          ${video.dominant_tag === 'unverified' ? 'bg-gray-700/95 text-white' : ''}
-          ${video.dominant_tag === 'fake' ? 'bg-red-600/95 text-white' : ''}
+          flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold text-sm text-white
+          backdrop-blur-md shadow-lg ${status.bg}
         `}>
-          {video.dominant_tag === 'verified' && '✓ '}
-          {video.dominant_tag === 'misleading' && '⚠ '}
-          {video.dominant_tag === 'unverified' && '? '}
-          {video.dominant_tag === 'fake' && '✗ '}
-          {video.dominant_tag.charAt(0).toUpperCase() + video.dominant_tag.slice(1)}
+          {status.icon}
+          <span>{status.label}</span>
         </div>
       </div>
 
-      {/* Bottom Overlay - Title, Description, Actions */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 text-white z-10">
+      {/* Bottom Content */}
+      <div className="absolute bottom-0 left-0 right-0 p-5 text-white z-10">
         <div className="flex items-end justify-between gap-4">
-          {/* Left Side - Title, Description, View Details */}
+          {/* Left - Title & Description */}
           <div className="flex-1 space-y-2">
-            {/* Title */}
-            <h3 className="font-bold text-lg leading-tight drop-shadow-lg">
+            <h3 className="font-bold text-lg leading-tight drop-shadow-lg line-clamp-2">
               {video.title}
             </h3>
-
-            {/* Description */}
             {video.description && (
-              <p className="text-sm leading-tight drop-shadow-lg line-clamp-2 opacity-90">
+              <p className="text-sm leading-tight drop-shadow-lg line-clamp-2 text-white/80">
                 {video.description}
               </p>
             )}
-
-            {/* View Details Link */}
             <button
               onClick={() => onDetailsClick(video.id)}
-              className="text-sm text-white/90 hover:text-white underline underline-offset-2 drop-shadow-lg block"
+              className="text-sm text-primary hover:text-primary/80 font-medium transition-colors flex items-center gap-1 group/link"
             >
-              View Details
+              <span>View Details</span>
+              <svg
+                className="w-4 h-4 transition-transform group-hover/link:translate-x-0.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
             </button>
           </div>
 
-          {/* Right Side - Verify Button */}
+          {/* Right - Verify Button */}
           <div className="flex-shrink-0">
             <Button
               onClick={() => onVerifyClick(video.id)}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg"
+              variant="glow"
               size="sm"
+              className="font-semibold"
             >
-              🔍 Verify
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              Verify
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Play/Pause Indicator - Shows on hover */}
+      {/* Play/Pause Indicator */}
       {!isPlaying && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="bg-black/50 rounded-full p-4 backdrop-blur-sm">
-            <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-300">
+          <div className="bg-black/40 rounded-full p-5 backdrop-blur-md ring-1 ring-white/10 transform scale-90 group-hover:scale-100 transition-transform">
+            <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
               <path d="M8 5v14l11-7z" />
             </svg>
           </div>

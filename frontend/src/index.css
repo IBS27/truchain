@@ -1,61 +1,236 @@
 @import "tailwindcss";
 
+/* Premium Typography - Import distinctive fonts */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 @theme {
-  --color-background: 0 0% 100%;
-  --color-foreground: 222.2 84% 4.9%;
-  --color-card: 0 0% 100%;
-  --color-card-foreground: 222.2 84% 4.9%;
-  --color-popover: 0 0% 100%;
-  --color-popover-foreground: 222.2 84% 4.9%;
-  --color-primary: 221.2 83.2% 53.3%;
-  --color-primary-foreground: 210 40% 98%;
-  --color-secondary: 210 40% 96.1%;
-  --color-secondary-foreground: 222.2 47.4% 11.2%;
-  --color-muted: 210 40% 96.1%;
-  --color-muted-foreground: 215.4 16.3% 46.9%;
-  --color-accent: 210 40% 96.1%;
-  --color-accent-foreground: 222.2 47.4% 11.2%;
-  --color-destructive: 0 84.2% 60.2%;
+  /* Dark Theme Color Palette - Cinematic Dark with Cyan Accents */
+  --color-background: 222 47% 5%;           /* Deep charcoal-blue */
+  --color-foreground: 210 40% 96%;          /* Soft white */
+  --color-card: 222 47% 8%;                 /* Slightly lighter than bg */
+  --color-card-foreground: 210 40% 96%;
+  --color-popover: 222 47% 10%;
+  --color-popover-foreground: 210 40% 96%;
+  --color-primary: 183 100% 50%;            /* Vibrant cyan */
+  --color-primary-foreground: 222 47% 5%;   /* Dark text on cyan */
+  --color-secondary: 222 30% 14%;           /* Muted dark blue */
+  --color-secondary-foreground: 210 40% 90%;
+  --color-muted: 222 30% 12%;
+  --color-muted-foreground: 215 20% 55%;
+  --color-accent: 183 80% 40%;              /* Darker cyan for accents */
+  --color-accent-foreground: 210 40% 98%;
+  --color-destructive: 0 72% 55%;           /* Warm red */
   --color-destructive-foreground: 210 40% 98%;
-  --color-border: 214.3 31.8% 91.4%;
-  --color-input: 214.3 31.8% 91.4%;
-  --color-ring: 221.2 83.2% 53.3%;
-  --radius: 0.5rem;
+  --color-border: 222 30% 18%;
+  --color-input: 222 30% 14%;
+  --color-ring: 183 100% 50%;
+  --radius: 0.75rem;
+
+  /* Chart colors for data visualization */
+  --chart-1: 183 100% 50%;
+  --chart-2: 160 84% 45%;
+  --chart-3: 280 65% 60%;
+  --chart-4: 340 75% 60%;
+  --chart-5: 45 93% 58%;
+}
+
+/* Base Styles */
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Outfit', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: hsl(var(--color-background));
   color: hsl(var(--color-foreground));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
 }
 
-/* Solana Wallet Adapter Modal Styling */
+/* Code/Monospace Elements */
+code, pre, .font-mono {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
 
-/* Animations */
+/* ============================================
+   Background Gradient Mesh - Subtle Atmosphere
+   ============================================ */
+.bg-mesh {
+  background-color: hsl(var(--color-background));
+  background-image:
+    radial-gradient(at 20% 80%, hsla(183, 100%, 50%, 0.08) 0px, transparent 50%),
+    radial-gradient(at 80% 20%, hsla(260, 80%, 50%, 0.06) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, hsla(222, 47%, 10%, 1) 0px, transparent 100%);
+}
+
+/* ============================================
+   Glass-morphism Effects
+   ============================================ */
+.glass {
+  background: hsla(222, 47%, 10%, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid hsla(210, 40%, 96%, 0.08);
+}
+
+.glass-card {
+  background: linear-gradient(
+    135deg,
+    hsla(222, 47%, 12%, 0.8) 0%,
+    hsla(222, 47%, 8%, 0.9) 100%
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid hsla(210, 40%, 96%, 0.06);
+  box-shadow:
+    0 4px 24px -4px hsla(0, 0%, 0%, 0.4),
+    0 0 0 1px hsla(210, 40%, 96%, 0.03) inset;
+}
+
+.glass-card:hover {
+  border-color: hsla(183, 100%, 50%, 0.15);
+  box-shadow:
+    0 8px 32px -4px hsla(0, 0%, 0%, 0.5),
+    0 0 0 1px hsla(183, 100%, 50%, 0.08) inset;
+}
+
+/* ============================================
+   Glow Effects for CTAs
+   ============================================ */
+.glow-cyan {
+  box-shadow:
+    0 0 20px hsla(183, 100%, 50%, 0.25),
+    0 0 40px hsla(183, 100%, 50%, 0.1);
+}
+
+.glow-cyan:hover {
+  box-shadow:
+    0 0 24px hsla(183, 100%, 50%, 0.35),
+    0 0 48px hsla(183, 100%, 50%, 0.15);
+}
+
+.text-glow {
+  text-shadow: 0 0 20px hsla(183, 100%, 50%, 0.5);
+}
+
+/* ============================================
+   Gradient Text
+   ============================================ */
+.gradient-text {
+  background: linear-gradient(135deg, hsl(183, 100%, 60%) 0%, hsl(183, 100%, 45%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-brand {
+  background: linear-gradient(135deg, hsl(183, 100%, 65%) 0%, hsl(200, 100%, 50%) 50%, hsl(260, 80%, 65%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================
+   Animations
+   ============================================ */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.98);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
-/* Modal wrapper - blurred overlay */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px hsla(183, 100%, 50%, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 32px hsla(183, 100%, 50%, 0.35);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-fade-in { animation: fadeIn 0.3s ease-out; }
+.animate-slide-up { animation: slideUp 0.4s ease-out forwards; }
+.animate-slide-down { animation: slideDown 0.4s ease-out forwards; }
+.animate-scale-in { animation: scaleIn 0.2s ease-out; }
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+
+/* Staggered animation delays */
+.animate-delay-75 { animation-delay: 75ms; }
+.animate-delay-100 { animation-delay: 100ms; }
+.animate-delay-150 { animation-delay: 150ms; }
+.animate-delay-200 { animation-delay: 200ms; }
+.animate-delay-300 { animation-delay: 300ms; }
+.animate-delay-500 { animation-delay: 500ms; }
+
+/* ============================================
+   Skeleton Loading
+   ============================================ */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+.skeleton-pulse {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  background: linear-gradient(90deg,
+    hsla(222, 30%, 14%, 1) 0%,
+    hsla(222, 30%, 20%, 1) 50%,
+    hsla(222, 30%, 14%, 1) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+/* ============================================
+   Solana Wallet Adapter - Dark Theme Override
+   ============================================ */
 .wallet-adapter-modal-wrapper {
-  background: rgba(0, 0, 0, 0.5) !important;
-  backdrop-filter: blur(8px) !important;
+  background: hsla(222, 47%, 5%, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
   position: fixed !important;
   inset: 0 !important;
   z-index: 9999 !important;
@@ -63,48 +238,53 @@ body {
   align-items: center !important;
   justify-content: center !important;
   padding: 20px !important;
-  animation: fadeIn 0.15s ease-out;
+  animation: fadeIn 0.2s ease-out;
 }
 
-/* The white modal card - contains everything */
 .wallet-adapter-modal {
-  background-color: white !important;
-  border-radius: 12px !important;
-  padding: 24px !important;
+  background: linear-gradient(
+    135deg,
+    hsla(222, 47%, 12%, 0.95) 0%,
+    hsla(222, 47%, 8%, 0.98) 100%
+  ) !important;
+  backdrop-filter: blur(24px) !important;
+  border-radius: 16px !important;
+  padding: 28px !important;
   max-width: 420px !important;
   width: 90% !important;
   max-height: 85vh !important;
   overflow-y: auto !important;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
-  border: 1px solid #e2e8f0 !important;
-  animation: slideUp 0.2s ease-out;
+  box-shadow:
+    0 24px 48px -12px hsla(0, 0%, 0%, 0.6),
+    0 0 0 1px hsla(210, 40%, 96%, 0.06) inset !important;
+  border: 1px solid hsla(183, 100%, 50%, 0.1) !important;
+  animation: scaleIn 0.25s ease-out;
   position: relative !important;
   margin: 0 auto !important;
 }
 
-/* Add custom title and description at the top of the modal */
 .wallet-adapter-modal::before {
   content: 'Connect Wallet' !important;
   display: block !important;
-  font-size: 1.25rem !important;
-  font-weight: 600 !important;
-  color: #0f172a !important;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  font-family: 'Outfit', sans-serif !important;
+  color: hsl(210, 40%, 96%) !important;
   margin: 0 0 0.5rem 0 !important;
   padding-right: 2.5rem !important;
   line-height: 1.3 !important;
 }
 
 .wallet-adapter-modal-list::before {
-  content: 'Select your preferred wallet provider' !important;
+  content: 'Select your preferred wallet' !important;
   display: block !important;
   font-size: 0.875rem !important;
   font-weight: 400 !important;
-  color: #64748b !important;
+  color: hsla(215, 20%, 55%, 1) !important;
   margin: 0 0 1.5rem 0 !important;
   line-height: 1.5 !important;
 }
 
-/* Hide default titles/headings to avoid duplication */
 .wallet-adapter-modal-title {
   display: none !important;
 }
@@ -126,7 +306,7 @@ body {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .wallet-adapter-modal-list-item {
@@ -135,26 +315,27 @@ body {
 
 .wallet-adapter-button {
   width: 100%;
-  padding: 12px 16px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  background-color: white;
-  color: #0f172a;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid hsla(210, 40%, 96%, 0.08);
+  background: hsla(222, 30%, 14%, 0.6);
+  color: hsl(210, 40%, 96%);
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
+  font-family: 'Outfit', sans-serif;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   text-align: left;
 }
 
 .wallet-adapter-button:hover {
-  background-color: #f8fafc;
-  border-color: #3b82f6;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background: hsla(222, 30%, 18%, 0.8);
+  border-color: hsla(183, 100%, 50%, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px hsla(0, 0%, 0%, 0.4);
 }
 
 .wallet-adapter-button:active {
@@ -165,8 +346,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
 }
 
@@ -174,36 +355,39 @@ body {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  border-radius: 4px;
+  border-radius: 8px;
 }
 
 .wallet-adapter-modal-button-close {
   position: absolute;
-  top: 20px;
-  right: 20px;
-  background: transparent;
-  border: none;
+  top: 24px;
+  right: 24px;
+  background: hsla(222, 30%, 14%, 0.6);
+  border: 1px solid hsla(210, 40%, 96%, 0.08);
   cursor: pointer;
-  padding: 8px;
-  color: #64748b;
-  transition: all 0.15s;
-  border-radius: 6px;
+  padding: 10px;
+  color: hsla(215, 20%, 55%, 1);
+  transition: all 0.2s;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .wallet-adapter-modal-button-close:hover {
-  color: #0f172a;
-  background-color: #f1f5f9;
+  color: hsl(210, 40%, 96%);
+  background: hsla(222, 30%, 20%, 0.8);
+  border-color: hsla(183, 100%, 50%, 0.2);
 }
 
 .wallet-adapter-modal-button-close svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 }
 
-/* TikTok-style Mobile Feed */
+/* ============================================
+   Mobile Feed Styles - TikTok Style
+   ============================================ */
 .mobile-feed-container {
   scroll-snap-type: y mandatory;
   overflow-y: scroll;
@@ -221,48 +405,70 @@ body {
   scroll-snap-stop: always;
 }
 
-/* Video loading skeleton pulse */
-@keyframes skeleton-pulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
-}
-
-.skeleton-pulse {
-  animation: skeleton-pulse 1.5s ease-in-out infinite;
-}
-
-/* Slide up animation for action buttons */
-@keyframes slide-up-fade {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-slide-up {
-  animation: slide-up-fade 0.3s ease-out forwards;
-}
-
-/* Staggered animation delays for action buttons */
-.animate-delay-100 { animation-delay: 100ms; }
-.animate-delay-200 { animation-delay: 200ms; }
-.animate-delay-300 { animation-delay: 300ms; }
-
-/* Progress ring animation */
-@keyframes progress-ring {
-  0% { stroke-dashoffset: 100; }
-  100% { stroke-dashoffset: 0; }
-}
-
-/* Safe area insets for notched phones */
+/* ============================================
+   Safe Area Insets
+   ============================================ */
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom, 20px);
 }
 
 .safe-area-top {
   padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* ============================================
+   Custom Scrollbar (Desktop)
+   ============================================ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsla(222, 47%, 8%, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsla(222, 30%, 25%, 0.8);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsla(222, 30%, 35%, 0.9);
+}
+
+/* ============================================
+   Focus States
+   ============================================ */
+*:focus-visible {
+  outline: 2px solid hsla(183, 100%, 50%, 0.5);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   Selection Styling
+   ============================================ */
+::selection {
+  background: hsla(183, 100%, 50%, 0.3);
+  color: hsl(210, 40%, 98%);
+}
+
+/* ============================================
+   Noise Texture Overlay (Optional)
+   ============================================ */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* ============================================
+   Progress Ring Animation
+   ============================================ */
+@keyframes progress-ring {
+  0% { stroke-dashoffset: 100; }
+  100% { stroke-dashoffset: 0; }
 }
