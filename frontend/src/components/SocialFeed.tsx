@@ -5,10 +5,28 @@ import { VideoCard } from './VideoCard';
 import { UploadVideoModal } from './UploadVideoModal';
 import { FlagDetailsModal } from './FlagDetailsModal';
 import { VerifyClipModal } from './VerifyClipModal';
+import { MobileSocialFeed } from './MobileSocialFeed';
 import { Button } from './ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent } from './ui/card';
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return isMobile;
+}
 
 export function SocialFeed() {
+  const isMobile = useIsMobile();
   const [videos, setVideos] = useState<SocialVideo[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
@@ -30,11 +48,13 @@ export function SocialFeed() {
     loadVideos();
   }, []);
 
-  const handleUploadSuccess = () => {
-    loadVideos();
-  };
+  // Use mobile feed on small screens
+  if (isMobile) {
+    return <MobileSocialFeed />;
+  }
 
-  const handleFlagUpdate = () => {
+  // Desktop: Original grid layout (kept for larger screens)
+  const handleUploadSuccess = () => {
     loadVideos();
   };
 
@@ -48,11 +68,9 @@ export function SocialFeed() {
 
   const handleBackFromVerify = () => {
     setVerifyingVideoId(null);
-    // Reload videos to get updated tags/counts after voting
     loadVideos();
   };
 
-  // If verifying a video, show verification modal
   if (verifyingVideoId !== null) {
     const video = videos.find(v => v.id === verifyingVideoId);
     if (!video) return null;
@@ -66,7 +84,6 @@ export function SocialFeed() {
 
   return (
     <div className="relative">
-      {/* Header with Title and Upload Button */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">For You</h2>
         <Button
@@ -78,7 +95,6 @@ export function SocialFeed() {
         </Button>
       </div>
 
-      {/* Loading State */}
       {loading ? (
         <Card>
           <CardContent className="py-12 text-center">
@@ -86,7 +102,6 @@ export function SocialFeed() {
           </CardContent>
         </Card>
       ) : videos.length === 0 ? (
-        /* Empty State */
         <Card>
           <CardContent className="py-12 text-center">
             <div className="text-6xl mb-4">📹</div>
@@ -100,7 +115,6 @@ export function SocialFeed() {
           </CardContent>
         </Card>
       ) : (
-        /* Video Grid */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {videos.map(video => (
             <VideoCard
@@ -113,7 +127,6 @@ export function SocialFeed() {
         </div>
       )}
 
-      {/* Modals */}
       <UploadVideoModal
         isOpen={uploadModalOpen}
         onClose={() => setUploadModalOpen(false)}
